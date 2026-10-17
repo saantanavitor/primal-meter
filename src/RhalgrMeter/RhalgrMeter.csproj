@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>RhalgrMeter</AssemblyName>
+    <RootNamespace>RhalgrMeter</RootNamespace>
+    <Product>Rhalgr Meter</Product>
+    <Version>0.1.0</Version>
+    <ApplicationIcon>..\..\assets\rhalgr.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <SatelliteResourceLanguages>pt-BR</SatelliteResourceLanguages>
+    <!-- a janela é WPF; o WinForms só entra no ícone da bandeja, então o DPI fica no app.manifest -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
+    <PublishReferencesDocumentationFiles>false</PublishReferencesDocumentationFiles>
+  </PropertyGroup>
+
+  <!-- WPF e WinForms juntos: evita nomes ambíguos (Application, MessageBox...) -->
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+  </ItemGroup>
+
+  <!-- A interface (pasta web/ na raiz) vai embutida no .exe -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\web\*.*" LogicalName="web/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

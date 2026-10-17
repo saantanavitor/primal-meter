@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace RhalgrMeter;
+namespace PrimalMeter;
 
 static class Native
 {

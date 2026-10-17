@@ -1,4 +1,4 @@
-> **Rhalgr Meter:** cópia do NotACT do [IINACT](https://github.com/marzent/IINACT) (commit `f49a568`, GPL-3), sem a dependência do Dalamud (o log de erros passa pela interface `IPluginLog` em `EngineLog.cs`).
+> **Primal Meter:** cópia do NotACT do [IINACT](https://github.com/marzent/IINACT) (commit `f49a568`, GPL-3), sem a dependência do Dalamud (o log de erros passa pela interface `IPluginLog` em `EngineLog.cs`).
 
 # Disclaimer
 

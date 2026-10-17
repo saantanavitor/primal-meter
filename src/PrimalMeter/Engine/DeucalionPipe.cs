@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 
-namespace RhalgrMeter.Engine;
+namespace PrimalMeter.Engine;
 
 /// <summary>
 /// O Deucalion continua carregado no jogo depois que o medidor fecha. Numa nova conexão, o gancho de recepção

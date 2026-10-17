@@ -1,4 +1,4 @@
-// Hospeda o FFXIV_ACT_Plugin (motor de parse do ACT) fora do jogo, dentro do Rhalgr Meter.
+// Hospeda o FFXIV_ACT_Plugin (motor de parse do ACT) fora do jogo, dentro do Primal Meter.
 // Baseado no FfxivActPluginWrapper do IINACT (https://github.com/marzent/IINACT, GPL-3), adaptado para o modo
 // "de fora": o próprio motor acha o processo do jogo, lê a memória por fora e captura a rede com o Deucalion.
 using System.Globalization;
@@ -17,7 +17,7 @@ using Machina.FFXIV.Deucalion;
 using Machina.FFXIV.Headers.Opcodes;
 using Microsoft.MinIoC;
 
-namespace RhalgrMeter.Engine;
+namespace PrimalMeter.Engine;
 
 sealed class ActEngine : IDisposable
 {

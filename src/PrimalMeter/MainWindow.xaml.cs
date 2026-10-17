@@ -9,10 +9,12 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Microsoft.Web.WebView2.Core;
 
-namespace RhalgrMeter;
+namespace PrimalMeter;
 
 public partial class MainWindow : Window
 {
+    // endereço interno da interface; ficou com o nome antigo do projeto (Rhalgr Meter) porque o histórico de lutas
+    // fica guardado no navegador embutido por endereço, e trocá-lo apagaria o histórico de quem atualizar
     const string AppOrigin = "https://app.rhalgr";
     const int HotkeyLock = 1, HotkeyShow = 2;
 
@@ -90,7 +92,7 @@ public partial class MainWindow : Window
 
         tray = new Tray(this);
         if (!okLock || !okShow)
-            tray.Notify("Outro programa já usa Ctrl+Shift+L ou Ctrl+Shift+H. Use o ícone da bandeja para travar e ocultar.");
+            tray.Notify(Text.T("hotkeysTaken"));
         SetLocked(settings.Locked);
     }
 
@@ -127,9 +129,7 @@ public partial class MainWindow : Window
         }
         catch (WebView2RuntimeNotFoundException)
         {
-            MessageBox.Show("O Rhalgr Meter precisa do Microsoft Edge WebView2 Runtime, que já vem no Windows 11.\n\n" +
-                            "Baixe em https://developer.microsoft.com/microsoft-edge/webview2/ e abra o Rhalgr Meter de novo.",
-                "Rhalgr Meter", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(Text.T("webview2"), "Primal Meter", MessageBoxButton.OK, MessageBoxImage.Warning);
             Close();
             return;
         }
@@ -197,6 +197,7 @@ public partial class MainWindow : Window
         {
             case "ready":
                 pageReady = true;
+                Send(new { host = "lang", value = settings.Language });
                 Send(new { host = "locked", value = locked });
                 if (m.TryGetProperty("url", out var u) && u.GetString() is string url && url.Length > 0) settings.WsUrl = url;
                 StartSource();
@@ -217,6 +218,15 @@ public partial class MainWindow : Window
             case "hide": Hide(); break;
             case "quit": Close(); break;
             case "openLog": _ = OpenLogAsync(); break;
+            case "lang":
+                if (m.TryGetProperty("value", out var l) && l.GetString() is "pt-BR" or "en")
+                {
+                    settings.Language = Text.Lang = l.GetString()!;
+                    settings.Save();
+                    tray?.RefreshTexts();
+                    engineHost.Resend();
+                }
+                break;
         }
     }
 
@@ -330,8 +340,8 @@ public partial class MainWindow : Window
     {
         var dlg = new Microsoft.Win32.OpenFileDialog
         {
-            Title = "Escolha um log do IINACT ou do ACT",
-            Filter = "Logs do IINACT/ACT (*.log)|*.log|Todos os arquivos (*.*)|*.*",
+            Title = Text.T("openLogTitle"),
+            Filter = Text.T("openLogFilter"),
         };
         string iinact = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "IINACT");
         if (Directory.Exists(Engine.EngineHost.LogFolder)) dlg.InitialDirectory = Engine.EngineHost.LogFolder;
@@ -347,7 +357,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Não deu para ler esse arquivo: " + ex.Message, "Rhalgr Meter", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(Text.T("readFail", ex.Message), "Primal Meter", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 

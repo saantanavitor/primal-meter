@@ -1,4 +1,4 @@
-# Gera dist/RhalgrMeter.exe: um único arquivo, sem instalador e sem precisar do .NET instalado.
+# Gera dist/PrimalMeter.exe: um único arquivo, sem instalador e sem precisar do .NET instalado.
 # O motor do ACT não vai dentro do .exe: ele é baixado na primeira execução, na máquina de quem usa.
 # Uso: powershell -ExecutionPolicy Bypass -File tools/publish.ps1 [-Out pasta]
 param([string]$Out = "")
@@ -9,7 +9,7 @@ if (-not $Out) { $Out = Join-Path $root "dist" }
 & "$PSScriptRoot\fetch-engine.ps1"
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-dotnet publish "$root\src\RhalgrMeter" -c Release -r win-x64 --self-contained true `
+dotnet publish "$root\src\PrimalMeter" -c Release -r win-x64 --self-contained true `
     -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true `
     -p:DebugType=none -o $Out -nologo -v q
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -20,5 +20,5 @@ if (Get-ChildItem $Out -Filter "FFXIV_ACT_Plugin*" -ErrorAction SilentlyContinue
     exit 1
 }
 
-$exe = Get-Item (Join-Path $Out "RhalgrMeter.exe")
+$exe = Get-Item (Join-Path $Out "PrimalMeter.exe")
 Write-Output ("Pronto: {0} ({1:N1} MB)" -f $exe.FullName, ($exe.Length / 1MB))

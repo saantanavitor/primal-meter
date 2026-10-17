@@ -1,38 +1,39 @@
 using System.IO.Compression;
 using System.Text.Json;
 
-namespace RhalgrMeter.EngineSetup;
+namespace PrimalMeter.EngineSetup;
 
 /// <summary>
 /// Baixa o FFXIV_ACT_Plugin (motor de parse do ACT, de Ravahn) da página oficial de releases, extrai e corrige
-/// para rodar dentro do Rhalgr Meter. O arquivo nunca é redistribuído: cada pessoa baixa na própria máquina.
+/// para rodar dentro do Primal Meter. O arquivo nunca é redistribuído: cada pessoa baixa na própria máquina.
 /// </summary>
 public static class EngineInstaller
 {
     /// <summary>Muda quando as correções mudam, para reinstalar o motor já baixado.</summary>
-    public const string PatchMarker = "RHALGR_ENGINE_PATCH_V1";
+    public const string PatchMarker = "PRIMAL_ENGINE_PATCH_V2";
     const string ReleasesApi = "https://api.github.com/repos/ravahn/FFXIV_ACT_Plugin/releases/latest";
 
     public static string DefaultFolder =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RhalgrMeter", "engine");
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PrimalMeter", "engine");
 
     /// <summary>
     /// Garante o motor instalado e atualizado em <paramref name="folder"/>. Sem internet, usa o que já estiver lá.
-    /// Devolve a versão instalada.
+    /// Devolve a versão instalada. <paramref name="status"/> recebe (chave, argumento): "engineChecking",
+    /// "engineDownloading" (versão) ou "enginePreparing", para quem chama traduzir.
     /// </summary>
-    public static Version Ensure(string folder, string versionLabel, Action<string> status)
+    public static Version Ensure(string folder, string versionLabel, Action<string, string> status)
     {
         Directory.CreateDirectory(folder);
         string pluginPath = Path.Combine(folder, "FFXIV_ACT_Plugin.dll");
         Version? installed = InstalledVersion(pluginPath);
 
         using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
-        http.DefaultRequestHeaders.UserAgent.ParseAdd("RhalgrMeter/" + versionLabel);
+        http.DefaultRequestHeaders.UserAgent.ParseAdd("PrimalMeter/" + versionLabel);
 
         (Version version, string url)? latest = null;
         try
         {
-            status("Procurando a versão mais recente do motor do ACT…");
+            status("engineChecking", "");
             latest = LatestRelease(http);
         }
         catch when (installed != null)
@@ -43,13 +44,13 @@ public static class EngineInstaller
         if (installed != null && latest!.Value.version <= installed)
             return installed;
 
-        status($"Baixando o motor do ACT {latest!.Value.version}…");
+        status("engineDownloading", latest!.Value.version.ToString());
         string zip = Path.Combine(folder, "engine.zip");
         using (var src = http.GetStreamAsync(latest.Value.url).GetAwaiter().GetResult())
         using (var dst = File.Create(zip))
             src.CopyTo(dst);
 
-        status("Preparando o motor…");
+        status("enginePreparing", "");
         foreach (var f in Directory.GetFiles(folder, "*.dll")) File.Delete(f);
         ZipFile.ExtractToDirectory(zip, folder, true);
         File.Delete(zip);

@@ -7,11 +7,11 @@
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>RhalgrMeter</AssemblyName>
-    <RootNamespace>RhalgrMeter</RootNamespace>
-    <Product>Rhalgr Meter</Product>
-    <Version>0.2.0</Version>
-    <ApplicationIcon>..\..\assets\rhalgr.ico</ApplicationIcon>
+    <AssemblyName>PrimalMeter</AssemblyName>
+    <RootNamespace>PrimalMeter</RootNamespace>
+    <Product>Primal Meter</Product>
+    <Version>0.3.0</Version>
+    <ApplicationIcon>..\..\assets\primal.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <SatelliteResourceLanguages>pt-BR</SatelliteResourceLanguages>
     <!-- a janela é WPF; o WinForms só entra no ícone da bandeja, então o DPI fica no app.manifest -->
@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <!-- O FFXIV_ACT_Plugin não é redistribuído: estas referências servem só para compilar
-       (gere a pasta com tools/fetch-engine.ps1). Em execução, as DLLs vêm de %LOCALAPPDATA%\RhalgrMeter\engine. -->
+       (gere a pasta com tools/fetch-engine.ps1). Em execução, as DLLs vêm de %LOCALAPPDATA%\PrimalMeter\engine. -->
   <ItemGroup>
     <Reference Include="FFXIV_ACT_Plugin"><HintPath>..\..\external_dependencies\FFXIV_ACT_Plugin.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="FFXIV_ACT_Plugin.Common"><HintPath>..\..\external_dependencies\FFXIV_ACT_Plugin.Common.dll</HintPath><Private>false</Private></Reference>

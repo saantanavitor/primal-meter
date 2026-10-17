@@ -12,4 +12,4 @@ http.createServer((req, res) => {
     res.writeHead(200, { "Content-Type": types[path.extname(file)] || "application/octet-stream", "Cache-Control": "no-store" });
     res.end(data);
   });
-}).listen(5173, () => console.log("Rhalgr Meter em http://localhost:5173/"));
+}).listen(5173, () => console.log("Primal Meter em http://localhost:5173/"));

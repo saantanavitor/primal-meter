@@ -1,10 +1,10 @@
 // Baseado no Patcher do IINACT (https://github.com/marzent/IINACT, FetchDependencies, GPL-3).
-// Diferença: o IINACT roda dentro do jogo e troca a leitura de memória por acesso direto; o Rhalgr Meter roda
+// Diferença: o IINACT roda dentro do jogo e troca a leitura de memória por acesso direto; o Primal Meter roda
 // fora, então mantém a leitura de memória original do motor (como no ACT) e só aplica o necessário para o .NET moderno.
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace RhalgrMeter.EngineSetup;
+namespace PrimalMeter.EngineSetup;
 
 internal class Patcher
 {
@@ -63,7 +63,7 @@ internal class Patcher
             var il = method.Body.GetILProcessor();
             while (il.Body.Instructions.First().OpCode != OpCodes.Ldstr)
                 il.RemoveAt(0);
-            il.Replace(0, Instruction.Create(OpCodes.Ldstr, $"This is Rhalgr Meter {versionLabel} based on FFXIV_ACT_Plugin {{0}}"));
+            il.Replace(0, Instruction.Create(OpCodes.Ldstr, $"This is Primal Meter {versionLabel} based on FFXIV_ACT_Plugin {{0}}"));
             il.Replace(1, Instruction.Create(OpCodes.Ldc_I4_1));
             var stelemIndex = Array.FindIndex(il.Body.Instructions.ToArray(), code => code.OpCode == OpCodes.Stelem_Ref);
             Enumerable.Range(0, 5).ToList().ForEach(_ => il.RemoveAt(stelemIndex + 1));

@@ -2,7 +2,7 @@ using System.IO;
 using System.Net.WebSockets;
 using System.Text;
 
-namespace RhalgrMeter;
+namespace PrimalMeter;
 
 /// <summary>
 /// Conecta no servidor WebSocket do IINACT (ou do OverlayPlugin do ACT), assina os eventos de combate

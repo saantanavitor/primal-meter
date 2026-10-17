@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.IO.Compression;
 
-namespace RhalgrMeter.EngineSetup;
+namespace PrimalMeter.EngineSetup;
 
 internal static class Costura
 {

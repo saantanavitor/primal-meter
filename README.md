@@ -1,9 +1,11 @@
-# Rhalgr Meter
+# Primal Meter
+
+🇧🇷 Português · [🇺🇸 English](README.en.md)
 
 Medidor de combate para Final Fantasy XIV, no estilo do ACT, com interface moderna e **sem plugin nenhum**.
-É um único `RhalgrMeter.exe`: você abre, ele fica por cima do jogo e já começa a medir. Não precisa de XIVLauncher, Dalamud, IINACT nem do ACT.
+É um único `PrimalMeter.exe`: você abre, ele fica por cima do jogo e já começa a medir. Não precisa de XIVLauncher, Dalamud, IINACT nem do ACT.
 
-**[⬇ Baixar a versão mais recente](https://github.com/saantanavitor/rhalgr-meter/releases/latest)**
+**[⬇ Baixar a versão mais recente](https://github.com/saantanavitor/primal-meter/releases/latest)**
 
 - **DPS, cura e dano recebido** de toda a party, atualizados a cada segundo
 - **Detalhes por jogador**: crítico, direct hit, maior golpe, overheal e **dano por habilidade**
@@ -11,14 +13,15 @@ Medidor de combate para Final Fantasy XIV, no estilo do ACT, com interface moder
 - **Modo travado**: o mouse passa direto para o jogo
 - **Reproduzir log**: revê lutas antigas fora do jogo
 - **Demonstração** com uma luta simulada
+- Em **português ou inglês**
 - Usa o **mesmo motor de parse do ACT**, então os números batem com os do ACT e do IINACT
 
 ---
 
 ## Instalação
 
-1. Na página de [Releases](https://github.com/saantanavitor/rhalgr-meter/releases/latest), baixe o `RhalgrMeter.exe`.
-2. Coloque-o onde preferir, por exemplo em `Documentos\RhalgrMeter`. Ele não tem instalador e não precisa do .NET instalado.
+1. Na página de [Releases](https://github.com/saantanavitor/primal-meter/releases/latest), baixe o `PrimalMeter.exe`.
+2. Coloque-o onde preferir, por exemplo em `Documentos\PrimalMeter`. Ele não tem instalador e não precisa do .NET instalado.
 3. Na primeira vez que abrir, o Windows pode mostrar um aviso azul. Veja [o aviso do Windows](#o-aviso-do-windows-não-é-vírus) mais abaixo.
 4. No jogo, em **Configurações do sistema → Configurações de tela**, coloque o modo **Janela sem bordas** (*Borderless Windowed*). No modo de tela cheia exclusiva, nenhum programa consegue aparecer por cima do jogo.
 
@@ -29,7 +32,7 @@ Na primeira execução, o medidor baixa o motor de parse do ACT da página ofici
 ## Como usar
 
 1. Abra o FFXIV do jeito que você já abre: Steam, launcher oficial ou XIVLauncher, tanto faz.
-2. Abra o `RhalgrMeter.exe`, antes ou depois do jogo. O medidor aparece no canto direito da tela.
+2. Abra o `PrimalMeter.exe`, antes ou depois do jogo. O medidor aparece no canto direito da tela.
 3. Confira o ponto ao lado do título:
    - **amarelo, "Esperando o jogo…"**: o FFXIV ainda não está aberto;
    - **verde, "Ao vivo"**: está medindo.
@@ -51,11 +54,12 @@ Na primeira execução, o medidor baixa o motor de parse do ACT da página ofici
   - o cálculo do DPS (pela duração da luta, como no ACT, ou pelo tempo ativo de cada jogador);
   - opacidade do fundo;
   - fonte de dados (motor embutido ou IINACT);
+  - idioma (português ou inglês);
   - limpar histórico e sair.
 
 **Ícone na bandeja** (perto do relógio do Windows): clique para mostrar ou ocultar o medidor. O botão direito abre as mesmas opções do menu.
 
-**Reproduzir log**: o medidor grava um log de cada dia em `Documentos\RhalgrMeter`, no mesmo formato de log de rede do ACT e do IINACT. No menu ⋯, escolha "Reproduzir log…" e abra um desses arquivos. Use ▶/❚❚ para pausar, 1×–64× para mudar a velocidade e ⏭ para processar tudo de uma vez.
+**Reproduzir log**: o medidor grava um log de cada dia em `Documentos\PrimalMeter`, no mesmo formato de log de rede do ACT e do IINACT. No menu ⋯, escolha "Reproduzir log…" e abra um desses arquivos. Use ▶/❚❚ para pausar, 1×–64× para mudar a velocidade e ⏭ para processar tudo de uma vez.
 
 **Já usa o IINACT?** No menu ⋯, troque a fonte para "IINACT". O medidor passa a ler os dados dele, como nas versões anteriores (`ws://127.0.0.1:10501/ws`).
 
@@ -63,7 +67,7 @@ Na primeira execução, o medidor baixa o motor de parse do ACT da página ofici
 
 ## O aviso do Windows não é vírus
 
-Na primeira vez que você abrir o `RhalgrMeter.exe`, o Windows pode mostrar:
+Na primeira vez que você abrir o `PrimalMeter.exe`, o Windows pode mostrar:
 
 > **O Windows protegeu o computador**
 > O Microsoft Defender SmartScreen impediu que um aplicativo não reconhecido fosse iniciado.
@@ -74,20 +78,20 @@ Para abrir, clique em **Mais informações** e depois em **Executar assim mesmo*
 
 O SmartScreen **não encontrou vírus nenhum**. Ele avisa sobre **todo programa que ainda não é conhecido**, e um programa só passa a ser conhecido de dois jeitos:
 
-1. **Assinatura digital de código.** É um certificado pago, que custa centenas de dólares por ano e é emitido para empresas ou pessoas verificadas. O Rhalgr Meter é um projeto pessoal e gratuito e ainda não tem esse certificado.
+1. **Assinatura digital de código.** É um certificado pago, que custa centenas de dólares por ano e é emitido para empresas ou pessoas verificadas. O Primal Meter é um projeto pessoal e gratuito e ainda não tem esse certificado.
 2. **Reputação.** Depois que muitas pessoas baixam o mesmo arquivo sem problemas, o aviso some sozinho.
 
 Muitos programas da comunidade de FFXIV, como plugins, ferramentas e o próprio ACT, mostram o mesmo aviso pelo mesmo motivo. O aviso diz que o Windows **não conhece** o programa, não que ele é perigoso.
 
-Alguns antivírus podem desconfiar do Rhalgr Meter por um motivo mais específico: ele **injeta uma DLL no jogo** para ler o combate (veja abaixo). É a mesma técnica que o ACT usa, e por isso o ACT também costuma ser marcado em antivírus mais rígidos. Se o seu antivírus bloquear, adicione uma exceção para o `RhalgrMeter.exe` e para a pasta `C:\ProgramData\RhalgrMeter`.
+Alguns antivírus podem desconfiar do Primal Meter por um motivo mais específico: ele **injeta uma DLL no jogo** para ler o combate (veja abaixo). É a mesma técnica que o ACT usa, e por isso o ACT também costuma ser marcado em antivírus mais rígidos. Se o seu antivírus bloquear, adicione uma exceção para o `PrimalMeter.exe` e para a pasta `C:\ProgramData\PrimalMeter`.
 
 ### O que o programa faz no seu computador
 
-Para não depender de plugins, o Rhalgr Meter faz exatamente o que o ACT faz:
+Para não depender de plugins, o Primal Meter faz exatamente o que o ACT faz:
 
-- **Baixa o motor de parse do ACT** (FFXIV_ACT_Plugin, do autor Ravahn) da [página oficial de releases](https://github.com/ravahn/FFXIV_ACT_Plugin/releases) e o guarda em `%LOCALAPPDATA%\RhalgrMeter\engine`. A cada abertura, ele consulta essa página para ver se saiu uma versão nova.
+- **Baixa o motor de parse do ACT** (FFXIV_ACT_Plugin, do autor Ravahn) da [página oficial de releases](https://github.com/ravahn/FFXIV_ACT_Plugin/releases) e o guarda em `%LOCALAPPDATA%\PrimalMeter\engine`. A cada abertura, ele consulta essa página para ver se saiu uma versão nova.
 - **Lê a memória do jogo** para saber nomes, jobs, party e zona. Ele só lê, nunca escreve.
-- **Injeta no jogo o [Deucalion](https://github.com/ff14wed/deucalion)**, uma DLL pequena e de código aberto que vem junto com o motor do ACT. Ela repassa ao medidor os pacotes de combate que o jogo recebe. A cópia usada fica em `C:\ProgramData\RhalgrMeter\deucalion`.
+- **Injeta no jogo o [Deucalion](https://github.com/ff14wed/deucalion)**, uma DLL pequena e de código aberto que vem junto com o motor do ACT. Ela repassa ao medidor os pacotes de combate que o jogo recebe. A cópia usada fica em `C:\ProgramData\PrimalMeter\deucalion`.
 - **Ao fechar o medidor, desliga o Deucalion**, e o jogo fica como estava antes.
 
 E o que ele **não** faz:
@@ -104,13 +108,13 @@ E o que ele **não** faz:
 - **Você pode conferir o arquivo.** Cada release informa o **SHA-256** do `.exe`. No PowerShell, rode o comando abaixo e compare com o código da release:
 
   ```powershell
-  Get-FileHash .\RhalgrMeter.exe -Algorithm SHA256
+  Get-FileHash .\PrimalMeter.exe -Algorithm SHA256
   ```
 
   Se os códigos forem iguais, o arquivo é exatamente o que foi publicado aqui, sem nenhuma alteração no caminho.
 - **Você pode pedir uma segunda opinião.** Envie o arquivo ao [VirusTotal](https://www.virustotal.com/), que o verifica com dezenas de antivírus de uma vez. Por causa da injeção de DLL, é normal que um ou outro antivírus aponte algo genérico, como acontece com o ACT.
 
-> Regra geral, que vale para qualquer programa: baixe o Rhalgr Meter **só** pela página de [Releases](https://github.com/saantanavitor/rhalgr-meter/releases) deste repositório. Cópias enviadas por outras pessoas ou outros sites podem ter sido alteradas.
+> Regra geral, que vale para qualquer programa: baixe o Primal Meter **só** pela página de [Releases](https://github.com/saantanavitor/primal-meter/releases) deste repositório. Cópias enviadas por outras pessoas ou outros sites podem ter sido alteradas.
 
 ---
 
@@ -118,8 +122,8 @@ E o que ele **não** faz:
 
 | Problema | O que fazer |
 | --- | --- |
-| Fica em "Esperando o jogo…" com o jogo aberto | Feche e abra o medidor de novo. Se o seu antivírus bloqueou o Deucalion, adicione uma exceção para `C:\ProgramData\RhalgrMeter`. |
-| "Erro no motor" | O erro aparece na mensagem amarela. O detalhe fica em `%APPDATA%\RhalgrMeter\motor.log`. Logo depois de um patch grande do jogo, o motor do ACT pode levar algumas horas para ser atualizado pelo autor; reabra o medidor mais tarde. |
+| Fica em "Esperando o jogo…" com o jogo aberto | Feche e abra o medidor de novo. Se o seu antivírus bloqueou o Deucalion, adicione uma exceção para `C:\ProgramData\PrimalMeter`. |
+| "Erro no motor" | O erro aparece na mensagem amarela. O detalhe fica em `%APPDATA%\PrimalMeter\motor.log`. Logo depois de um patch grande do jogo, o motor do ACT pode levar algumas horas para ser atualizado pelo autor; reabra o medidor mais tarde. |
 | "Preparando…" não termina | O primeiro uso precisa de internet para baixar o motor. Confira a conexão e reabra. |
 | O medidor não aparece por cima do jogo | Coloque o jogo em **Janela sem bordas**. |
 | Não consigo clicar no medidor | Ele está travado. Aperte **Ctrl+Shift+L**. |
@@ -135,10 +139,10 @@ FFXIV ◄── Deucalion (injetado) ──pipe──┐
   │                                    ▼
   └── memória (só leitura) ──► motor do ACT (FFXIV_ACT_Plugin) ──► NotACT ──► interface (WebView2)
                                                                     │
-                                              Documentos\RhalgrMeter\Network_*.log
+                                              Documentos\PrimalMeter\Network_*.log
 ```
 
-- **`src/RhalgrMeter`**: app WPF (.NET 10). Janela transparente e sempre por cima, clique atravessando quando travada, atalhos globais e ícone na bandeja.
+- **`src/PrimalMeter`**: app WPF (.NET 10). Janela transparente e sempre por cima, clique atravessando quando travada, atalhos globais e ícone na bandeja.
   - `Engine/`: hospeda o motor do ACT fora do jogo e desliga o Deucalion ao fechar.
   - `IinactClient.cs`: cliente WebSocket do IINACT, para quem escolher essa fonte.
 - **`src/NotACT`**: camada que imita o Advanced Combat Tracker para o motor. Veio do [IINACT](https://github.com/marzent/IINACT).
@@ -157,13 +161,13 @@ powershell -ExecutionPolicy Bypass -File tools/fetch-engine.ps1
 ```
 
 ```bash
-dotnet run --project src/RhalgrMeter
+dotnet run --project src/PrimalMeter
 ```
 
-A versão de desenvolvimento usa configurações próprias (`%APPDATA%\RhalgrMeter-dev`) e pode rodar ao lado do medidor instalado.
+A versão de desenvolvimento usa configurações próprias (`%APPDATA%\PrimalMeter-dev`) e pode rodar ao lado do medidor instalado.
 
 ```bash
-node tests/replay.js "%USERPROFILE%\Documents\RhalgrMeter\Network_xxxxx.log"
+node tests/replay.js "%USERPROFILE%\Documents\PrimalMeter\Network_xxxxx.log"
 ```
 
 ```bash
@@ -172,7 +176,7 @@ node tools/serve.js
 
 O último serve a interface em http://localhost:5173/ com a demonstração rodando, para mexer no visual sem abrir o app.
 
-Para gerar o executável de distribuição (`dist/RhalgrMeter.exe`, cerca de 67 MB, não precisa do .NET instalado):
+Para gerar o executável de distribuição (`dist/PrimalMeter.exe`, cerca de 67 MB, não precisa do .NET instalado):
 
 ```bash
 powershell -ExecutionPolicy Bypass -File tools/publish.ps1
@@ -184,9 +188,13 @@ powershell -ExecutionPolicy Bypass -File tools/publish.ps1
 - Logo depois de um patch grande do jogo, o medidor só volta a funcionar quando o autor do motor do ACT publicar a atualização, o que normalmente leva algumas horas.
 - Clicar no medidor destravado tira o foco do jogo. Trave antes de jogar.
 
+## Nome antigo
+
+Até a versão 0.2.0, o projeto se chamava **Rhalgr Meter**. Na primeira vez que o Primal Meter abre, ele copia as configurações, o histórico de lutas e o motor já baixado do Rhalgr Meter. Depois disso, o `RhalgrMeter.exe` antigo pode ser apagado. Os logs gravados antes da troca continuam em `Documentos\RhalgrMeter` e podem ser abertos em "Reproduzir log…".
+
 ## Créditos e licença
 
-O Rhalgr Meter é software livre, distribuído sob a [GNU GPL v3](LICENSE).
+O Primal Meter é software livre, distribuído sob a [GNU GPL v3](LICENSE).
 
 - **[FFXIV_ACT_Plugin](https://github.com/ravahn/FFXIV_ACT_Plugin)**, de Ravahn: o motor de parse. Ele é baixado da release oficial na máquina de quem usa e não faz parte deste repositório.
 - **[IINACT](https://github.com/marzent/IINACT)**, de marzent (GPL-3): a camada NotACT e a forma de preparar o motor para rodar fora do ACT.

@@ -1,6 +1,6 @@
-/* Rhalgr Meter: motor de parse das linhas de log do ACT/IINACT (formato "Network log").
+/* Primal Meter: motor de parse das linhas de log do ACT/IINACT (formato "Network log").
    Recebe linhas já separadas por "|" e monta as lutas: dano, cura, dano recebido, mortes e dano por habilidade.
-   Funciona igual no navegador (window.RhalgrEngine) e no Node (module.exports), para dar para testar com um log real. */
+   Funciona igual no navegador (window.PrimalEngine) e no Node (module.exports), para dar para testar com um log real. */
 (function (root) {
 "use strict";
 
@@ -190,5 +190,5 @@ function create(opts) {
 }
 
 const api = { create, parseTime, amount, encodeAmount, JOBS, KEEP };
-if (typeof module === "object" && module.exports) module.exports = api; else root.RhalgrEngine = api;
+if (typeof module === "object" && module.exports) module.exports = api; else root.PrimalEngine = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -1,9 +1,9 @@
 using System.IO;
 using System.Text.Json;
 
-namespace RhalgrMeter;
+namespace PrimalMeter;
 
-/// <summary>Preferências da janela, salvas em %APPDATA%\RhalgrMeter\settings.json.</summary>
+/// <summary>Preferências da janela, salvas em %APPDATA%\PrimalMeter\settings.json.</summary>
 public sealed class Settings
 {
     public static readonly string Folder =
@@ -18,6 +18,8 @@ public sealed class Settings
     public bool Locked { get; set; }
     /// <summary>"builtin": motor do ACT embutido (sem plugins). "iinact": servidor WebSocket do IINACT.</summary>
     public string DataSource { get; set; } = "builtin";
+    /// <summary>"pt-BR" (padrão) ou "en".</summary>
+    public string Language { get; set; } = "pt-BR";
 
     public static Settings Load()
     {

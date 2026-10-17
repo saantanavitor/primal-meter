@@ -1,4 +1,4 @@
-// Rhalgr Meter: substitui o IPluginLog do Dalamud, que o NotACT original (IINACT) usava para registrar erros.
+// Primal Meter: substitui o IPluginLog do Dalamud, que o NotACT original (IINACT) usava para registrar erros.
 namespace Advanced_Combat_Tracker;
 
 public interface IPluginLog

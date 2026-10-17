@@ -1,7 +1,7 @@
 // Copiado do IINACT (https://github.com/marzent/IINACT, FetchDependencies, GPL-3).
 using Mono.Cecil;
 
-namespace RhalgrMeter.EngineSetup;
+namespace PrimalMeter.EngineSetup;
 
 internal class TargetAssembly : IDisposable
 {

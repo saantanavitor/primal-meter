@@ -1,8 +1,8 @@
-<Window x:Class="RhalgrMeter.MainWindow"
+<Window x:Class="PrimalMeter.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-        Title="Rhalgr Meter"
+        Title="Primal Meter"
         WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="False"
         Background="Transparent" Topmost="True" ShowInTaskbar="False"
         MinWidth="260" MinHeight="200" Width="380" Height="480">

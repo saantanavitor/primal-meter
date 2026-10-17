@@ -10,7 +10,7 @@
     <AssemblyName>RhalgrMeter</AssemblyName>
     <RootNamespace>RhalgrMeter</RootNamespace>
     <Product>Rhalgr Meter</Product>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <ApplicationIcon>..\..\assets\rhalgr.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <SatelliteResourceLanguages>pt-BR</SatelliteResourceLanguages>

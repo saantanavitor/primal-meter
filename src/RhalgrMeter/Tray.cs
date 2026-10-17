@@ -16,7 +16,7 @@ sealed class Tray : IDisposable
         menu.Items.Add(new ToolStripMenuItem("Mostrar / ocultar", null, (_, _) => w.ToggleVisible()) { ShortcutKeyDisplayString = "Ctrl+Shift+H" });
         menu.Items.Add(lockItem);
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("Reconectar ao IINACT", null, (_, _) => w.TrayCommand("live"));
+        menu.Items.Add("Voltar ao vivo / reconectar", null, (_, _) => w.TrayCommand("live"));
         menu.Items.Add("Demonstração", null, (_, _) => w.TrayCommand("demo"));
         menu.Items.Add("Reproduzir log…", null, (_, _) => w.TrayCommand("replay"));
         menu.Items.Add(new ToolStripSeparator());

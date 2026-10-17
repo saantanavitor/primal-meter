@@ -1,7 +1,7 @@
 # Rhalgr Meter
 
-Medidor de combate para Final Fantasy XIV, no estilo do ACT, com interface moderna e sem instalação complicada.
-É um único `RhalgrMeter.exe`: você abre, ele fica por cima do jogo e se conecta sozinho ao IINACT.
+Medidor de combate para Final Fantasy XIV, no estilo do ACT, com interface moderna e **sem plugin nenhum**.
+É um único `RhalgrMeter.exe`: você abre, ele fica por cima do jogo e já começa a medir. Não precisa de XIVLauncher, Dalamud, IINACT nem do ACT.
 
 **[⬇ Baixar a versão mais recente](https://github.com/saantanavitor/rhalgr-meter/releases/latest)**
 
@@ -9,43 +9,30 @@ Medidor de combate para Final Fantasy XIV, no estilo do ACT, com interface moder
 - **Detalhes por jogador**: crítico, direct hit, maior golpe, overheal e **dano por habilidade**
 - **Histórico** das últimas 20 lutas
 - **Modo travado**: o mouse passa direto para o jogo
-- **Reproduzir log**: abre um log do IINACT/ACT para rever lutas fora do jogo
+- **Reproduzir log**: revê lutas antigas fora do jogo
 - **Demonstração** com uma luta simulada
+- Usa o **mesmo motor de parse do ACT**, então os números batem com os do ACT e do IINACT
 
 ---
 
 ## Instalação
 
-O Rhalgr Meter mostra os números, e quem lê o combate do jogo é o **IINACT**, um plugin do Dalamud. Por isso, você precisa dos dois.
-
-### 1. Instale o XIVLauncher (se ainda não usa)
-
-1. Baixe em [goatcorp.github.io](https://goatcorp.github.io/) e instale.
-2. Abra o FFXIV sempre pelo XIVLauncher, para os plugins do Dalamud carregarem.
-
-### 2. Instale o IINACT
-
-1. Siga as instruções de [iinact.com](https://www.iinact.com/). Lá está o endereço do repositório de plugins que você adiciona no Dalamud.
-2. Dentro do jogo, abra o instalador de plugins com `/xlplugins`, procure por **IINACT** e instale.
-3. Abra o IINACT com `/iinact` e confira se o **servidor WebSocket** está ligado. O padrão é `ws://127.0.0.1:10501/ws`, e o Rhalgr Meter já vem configurado com esse endereço.
-
-### 3. Baixe o Rhalgr Meter
-
 1. Na página de [Releases](https://github.com/saantanavitor/rhalgr-meter/releases/latest), baixe o `RhalgrMeter.exe`.
 2. Coloque-o onde preferir, por exemplo em `Documentos\RhalgrMeter`. Ele não tem instalador e não precisa do .NET instalado.
-3. Na primeira vez que abrir, o Windows pode mostrar um aviso azul. Veja [o aviso do Windows](#o-aviso-do-windows-não-é-vírus) logo abaixo.
+3. Na primeira vez que abrir, o Windows pode mostrar um aviso azul. Veja [o aviso do Windows](#o-aviso-do-windows-não-é-vírus) mais abaixo.
+4. No jogo, em **Configurações do sistema → Configurações de tela**, coloque o modo **Janela sem bordas** (*Borderless Windowed*). No modo de tela cheia exclusiva, nenhum programa consegue aparecer por cima do jogo.
 
-### 4. Ajuste o jogo
-
-Em **Configurações do sistema → Configurações de tela**, coloque o jogo em **Janela sem bordas** (*Borderless Windowed*). No modo de tela cheia exclusiva, nenhum programa consegue aparecer por cima do jogo.
+Na primeira execução, o medidor baixa o motor de parse do ACT da página oficial do autor (cerca de 4 MB) e mostra "Preparando…" enquanto isso. Nas próximas vezes, ele só confere se saiu uma versão nova.
 
 ---
 
 ## Como usar
 
-1. Abra o FFXIV pelo XIVLauncher, com o IINACT ativo.
-2. Abra o `RhalgrMeter.exe`. O medidor aparece no canto direito da tela.
-3. Confira o ponto ao lado do título: **verde, "Ao vivo"**, quer dizer que ele está conectado. **Vermelho, "Sem conexão"**, quer dizer que o IINACT não está rodando ou que o WebSocket está desligado. O medidor tenta de novo a cada 3 segundos.
+1. Abra o FFXIV do jeito que você já abre: Steam, launcher oficial ou XIVLauncher, tanto faz.
+2. Abra o `RhalgrMeter.exe`, antes ou depois do jogo. O medidor aparece no canto direito da tela.
+3. Confira o ponto ao lado do título:
+   - **amarelo, "Esperando o jogo…"**: o FFXIV ainda não está aberto;
+   - **verde, "Ao vivo"**: está medindo.
 4. Ajuste a posição: **arraste pelo topo** para mover e **puxe o canto inferior direito** para redimensionar. A posição e o tamanho ficam salvos.
 5. **Trave antes de jogar** com **Ctrl+Shift+L**. Travado, o medidor ignora o mouse e os cliques vão para o jogo. Use o mesmo atalho para destravar.
 
@@ -59,11 +46,18 @@ Em **Configurações do sistema → Configurações de tela**, coloque o jogo em
 - **Abas DPS, Cura e Tanque**: cada uma ordena a party por um número diferente.
 - **Clique num jogador** para ver os detalhes e o dano (ou a cura) de cada habilidade.
 - **Seletor "Luta"**: abre as lutas anteriores. As últimas 20 ficam salvas.
-- **Menu ⋯**: demonstração, reproduzir log, opacidade do fundo, endereço do IINACT, limpar histórico e sair.
+- **Menu ⋯**:
+  - demonstração e reprodução de log;
+  - o cálculo do DPS (pela duração da luta, como no ACT, ou pelo tempo ativo de cada jogador);
+  - opacidade do fundo;
+  - fonte de dados (motor embutido ou IINACT);
+  - limpar histórico e sair.
 
 **Ícone na bandeja** (perto do relógio do Windows): clique para mostrar ou ocultar o medidor. O botão direito abre as mesmas opções do menu.
 
-**Reproduzir log**: no menu ⋯, escolha "Reproduzir log…" e abra um arquivo de `Documentos\IINACT`. Use ▶/❚❚ para pausar, 1×–64× para mudar a velocidade e ⏭ para processar tudo de uma vez.
+**Reproduzir log**: o medidor grava um log de cada dia em `Documentos\RhalgrMeter`, no mesmo formato de log de rede do ACT e do IINACT. No menu ⋯, escolha "Reproduzir log…" e abra um desses arquivos. Use ▶/❚❚ para pausar, 1×–64× para mudar a velocidade e ⏭ para processar tudo de uma vez.
+
+**Já usa o IINACT?** No menu ⋯, troque a fonte para "IINACT". O medidor passa a ler os dados dele, como nas versões anteriores (`ws://127.0.0.1:10501/ws`).
 
 ---
 
@@ -85,15 +79,28 @@ O SmartScreen **não encontrou vírus nenhum**. Ele avisa sobre **todo programa 
 
 Muitos programas da comunidade de FFXIV, como plugins, ferramentas e o próprio ACT, mostram o mesmo aviso pelo mesmo motivo. O aviso diz que o Windows **não conhece** o programa, não que ele é perigoso.
 
+Alguns antivírus podem desconfiar do Rhalgr Meter por um motivo mais específico: ele **injeta uma DLL no jogo** para ler o combate (veja abaixo). É a mesma técnica que o ACT usa, e por isso o ACT também costuma ser marcado em antivírus mais rígidos. Se o seu antivírus bloquear, adicione uma exceção para o `RhalgrMeter.exe` e para a pasta `C:\ProgramData\RhalgrMeter`.
+
+### O que o programa faz no seu computador
+
+Para não depender de plugins, o Rhalgr Meter faz exatamente o que o ACT faz:
+
+- **Baixa o motor de parse do ACT** (FFXIV_ACT_Plugin, do autor Ravahn) da [página oficial de releases](https://github.com/ravahn/FFXIV_ACT_Plugin/releases) e o guarda em `%LOCALAPPDATA%\RhalgrMeter\engine`. A cada abertura, ele consulta essa página para ver se saiu uma versão nova.
+- **Lê a memória do jogo** para saber nomes, jobs, party e zona. Ele só lê, nunca escreve.
+- **Injeta no jogo o [Deucalion](https://github.com/ff14wed/deucalion)**, uma DLL pequena e de código aberto que vem junto com o motor do ACT. Ela repassa ao medidor os pacotes de combate que o jogo recebe. A cópia usada fica em `C:\ProgramData\RhalgrMeter\deucalion`.
+- **Ao fechar o medidor, desliga o Deucalion**, e o jogo fica como estava antes.
+
+E o que ele **não** faz:
+
+- não pede permissão de administrador;
+- não altera arquivos do jogo;
+- não envia dados seus nem do jogo para a internet. A comunicação com o Deucalion é local, por um *named pipe*, e os únicos acessos à internet são a consulta ao motor do ACT no GitHub e as fontes da interface (Google Fonts);
+- não automatiza nada no jogo.
+
 ### Por que você pode confiar
 
-- **O código é aberto.** Tudo o que o programa faz está neste repositório: a janela em [`src/RhalgrMeter`](src/RhalgrMeter) e a interface e os cálculos em [`web`](web). Qualquer pessoa pode ler.
+- **O código é aberto.** Tudo o que o programa faz está neste repositório: a janela e o motor em [`src`](src), e a interface e os cálculos em [`web`](web). Qualquer pessoa pode ler.
 - **Você mesmo pode gerar o `.exe`** a partir do código, com o comando da seção [Desenvolvimento](#desenvolvimento). Assim não precisa confiar no arquivo que eu publiquei.
-- **O programa faz muito pouco:**
-  - não pede permissão de administrador;
-  - não mexe nos arquivos do jogo e não injeta nada no processo do FFXIV;
-  - só se conecta ao IINACT **no seu próprio computador** (`127.0.0.1`). Ele não manda dados para a internet; a única coisa que busca de fora são as fontes do Google Fonts;
-  - só grava as próprias preferências em `%APPDATA%\RhalgrMeter` e o histórico de lutas em `%LOCALAPPDATA%\RhalgrMeter`.
 - **Você pode conferir o arquivo.** Cada release informa o **SHA-256** do `.exe`. No PowerShell, rode o comando abaixo e compare com o código da release:
 
   ```powershell
@@ -101,7 +108,7 @@ Muitos programas da comunidade de FFXIV, como plugins, ferramentas e o próprio 
   ```
 
   Se os códigos forem iguais, o arquivo é exatamente o que foi publicado aqui, sem nenhuma alteração no caminho.
-- **Você pode pedir uma segunda opinião.** Envie o arquivo ao [VirusTotal](https://www.virustotal.com/), que o verifica com dezenas de antivírus de uma vez. Um ou outro antivírus menos conhecido às vezes acusa programas sem assinatura sem motivo real (um falso positivo).
+- **Você pode pedir uma segunda opinião.** Envie o arquivo ao [VirusTotal](https://www.virustotal.com/), que o verifica com dezenas de antivírus de uma vez. Por causa da injeção de DLL, é normal que um ou outro antivírus aponte algo genérico, como acontece com o ACT.
 
 > Regra geral, que vale para qualquer programa: baixe o Rhalgr Meter **só** pela página de [Releases](https://github.com/saantanavitor/rhalgr-meter/releases) deste repositório. Cópias enviadas por outras pessoas ou outros sites podem ter sido alteradas.
 
@@ -111,7 +118,9 @@ Muitos programas da comunidade de FFXIV, como plugins, ferramentas e o próprio 
 
 | Problema | O que fazer |
 | --- | --- |
-| "Sem conexão" o tempo todo | Confira se o jogo foi aberto pelo XIVLauncher, se o IINACT está ativo (`/iinact`) e se o servidor WebSocket está ligado. Se você mudou a porta, ajuste o endereço no menu ⋯. |
+| Fica em "Esperando o jogo…" com o jogo aberto | Feche e abra o medidor de novo. Se o seu antivírus bloqueou o Deucalion, adicione uma exceção para `C:\ProgramData\RhalgrMeter`. |
+| "Erro no motor" | O erro aparece na mensagem amarela. O detalhe fica em `%APPDATA%\RhalgrMeter\motor.log`. Logo depois de um patch grande do jogo, o motor do ACT pode levar algumas horas para ser atualizado pelo autor; reabra o medidor mais tarde. |
+| "Preparando…" não termina | O primeiro uso precisa de internet para baixar o motor. Confira a conexão e reabra. |
 | O medidor não aparece por cima do jogo | Coloque o jogo em **Janela sem bordas**. |
 | Não consigo clicar no medidor | Ele está travado. Aperte **Ctrl+Shift+L**. |
 | O medidor sumiu | Aperte **Ctrl+Shift+H** ou clique no ícone na bandeja. |
@@ -122,25 +131,39 @@ Muitos programas da comunidade de FFXIV, como plugins, ferramentas e o próprio 
 ## Como funciona
 
 ```
-FFXIV ──► IINACT (plugin do Dalamud) ──WebSocket──► RhalgrMeter.exe ──► interface (WebView2)
-                         │                              │
-                         └── Documentos\IINACT\*.log ───┘  (modo "Reproduzir log")
+FFXIV ◄── Deucalion (injetado) ──pipe──┐
+  │                                    ▼
+  └── memória (só leitura) ──► motor do ACT (FFXIV_ACT_Plugin) ──► NotACT ──► interface (WebView2)
+                                                                    │
+                                              Documentos\RhalgrMeter\Network_*.log
 ```
 
-- **`src/RhalgrMeter`**: app WPF (.NET 10). Janela transparente e sempre por cima, clique atravessando quando travada, atalhos globais, ícone na bandeja e cliente WebSocket do IINACT.
+- **`src/RhalgrMeter`**: app WPF (.NET 10). Janela transparente e sempre por cima, clique atravessando quando travada, atalhos globais e ícone na bandeja.
+  - `Engine/`: hospeda o motor do ACT fora do jogo e desliga o Deucalion ao fechar.
+  - `IinactClient.cs`: cliente WebSocket do IINACT, para quem escolher essa fonte.
+- **`src/NotACT`**: camada que imita o Advanced Combat Tracker para o motor. Veio do [IINACT](https://github.com/marzent/IINACT).
+- **`src/EngineSetup`**: baixa o motor da release oficial, extrai as DLLs embutidas e aplica as correções para o .NET moderno. O motor **nunca é redistribuído**: cada pessoa o baixa na própria máquina.
 - **`web/index.html`**: a interface. Vai embutida no `.exe` e também funciona sozinha no navegador ou no Browsingway (`index.html?OVERLAY_WS=ws://127.0.0.1:10501/ws`).
-- **`web/engine.js`**: motor de parse das linhas de log do ACT (tipos 21/22 ações, 24 DoT/HoT, 25 mortes, 03/261 combatentes, 260 estado de combate). Ao vivo, os totais vêm do IINACT e o motor calcula o dano por habilidade. Na reprodução de log e na demonstração, o motor calcula tudo.
+- **`web/engine.js`**: transforma as linhas de log do ACT em lutas, totais e dano por habilidade (tipos 21/22 ações, 24 DoT/HoT, 25 mortes, 03/261 combatentes, 260 estado de combate).
 
 ## Desenvolvimento
 
 Requisitos: .NET SDK 10 e Node.js (só para os testes e para editar a interface).
 
+Antes de compilar pela primeira vez, baixe o motor do ACT para `external_dependencies/` (ele é usado só para compilar e nunca entra no repositório):
+
+```bash
+powershell -ExecutionPolicy Bypass -File tools/fetch-engine.ps1
+```
+
 ```bash
 dotnet run --project src/RhalgrMeter
 ```
 
+A versão de desenvolvimento usa configurações próprias (`%APPDATA%\RhalgrMeter-dev`) e pode rodar ao lado do medidor instalado.
+
 ```bash
-node tests/replay.js "%USERPROFILE%\Documents\IINACT\Network_xxxxx.log"
+node tests/replay.js "%USERPROFILE%\Documents\RhalgrMeter\Network_xxxxx.log"
 ```
 
 ```bash
@@ -157,9 +180,18 @@ powershell -ExecutionPolicy Bypass -File tools/publish.ps1
 
 ## Limitações conhecidas
 
-- Depende do IINACT (ou do ACT com OverlayPlugin e WebSocket ligado) para os dados ao vivo.
-- Na reprodução de log, DoTs sem origem informada no log não são atribuídos, e escudos não contam como cura. Ao vivo, esses números vêm do IINACT e não têm esse problema.
+- Com o motor embutido, os totais são calculados pelo `engine.js` a partir das linhas do motor do ACT. Nos testes, o resultado bateu com o do IINACT. Uma diferença conhecida: **escudos não contam como cura**, e no ACT contam.
+- Logo depois de um patch grande do jogo, o medidor só volta a funcionar quando o autor do motor do ACT publicar a atualização, o que normalmente leva algumas horas.
 - Clicar no medidor destravado tira o foco do jogo. Trave antes de jogar.
+
+## Créditos e licença
+
+O Rhalgr Meter é software livre, distribuído sob a [GNU GPL v3](LICENSE).
+
+- **[FFXIV_ACT_Plugin](https://github.com/ravahn/FFXIV_ACT_Plugin)**, de Ravahn: o motor de parse. Ele é baixado da release oficial na máquina de quem usa e não faz parte deste repositório.
+- **[IINACT](https://github.com/marzent/IINACT)**, de marzent (GPL-3): a camada NotACT e a forma de preparar o motor para rodar fora do ACT.
+- **[Deucalion](https://github.com/ff14wed/deucalion)**, de ff14wed: a captura dos pacotes de rede do jogo.
+- **[Machina](https://github.com/ravahn/machina)**, de Ravahn: a leitura dos pacotes, usada pelo motor.
 
 ## Aviso
 

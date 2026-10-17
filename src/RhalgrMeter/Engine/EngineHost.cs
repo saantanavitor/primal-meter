@@ -46,6 +46,7 @@ sealed class EngineHost : IDisposable
             EngineInstaller.Ensure(engineFolder, version, msg => Report("setup", msg));
             Report("setup", "Iniciando o motor do ACT…");
             AssemblyLoadContext.Default.Resolving += ResolveFromEngine;
+            if (DeucalionPipe.ExitAll() > 0) EngineLog.Write("Deucalion de uma sessão anterior desligado");
             CreateEngine();
             watch = new Timer(_ => Watch(), null, 1000, 2000);
         }
@@ -117,7 +118,10 @@ sealed class EngineHost : IDisposable
     public void Dispose()
     {
         watch?.Dispose();
-        engine?.Dispose();
+        if (engine == null) return;
+        int pid = engine.GameProcessId;
+        engine.Dispose();
+        if (pid > 0) DeucalionPipe.Exit(pid);   // deixa o jogo como estava antes do medidor abrir
     }
 }
 

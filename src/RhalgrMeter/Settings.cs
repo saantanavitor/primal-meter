@@ -7,7 +7,7 @@ namespace RhalgrMeter;
 public sealed class Settings
 {
     public static readonly string Folder =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "RhalgrMeter");
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), AppInfo.Id);
     static string FilePath => Path.Combine(Folder, "settings.json");
 
     public double? Left { get; set; }
@@ -16,6 +16,8 @@ public sealed class Settings
     public double Height { get; set; } = 480;
     public string WsUrl { get; set; } = "ws://127.0.0.1:10501/ws";
     public bool Locked { get; set; }
+    /// <summary>"builtin": motor do ACT embutido (sem plugins). "iinact": servidor WebSocket do IINACT.</summary>
+    public string DataSource { get; set; } = "builtin";
 
     public static Settings Load()
     {

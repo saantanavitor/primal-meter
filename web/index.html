@@ -134,7 +134,8 @@ html:not(.host) .host-only{display:none}
     </div>
   </div>
   <div class="menu" id="menu" hidden>
-    <button class="mi" id="mLive" type="button">Conectar ao IINACT</button>
+    <button class="mi" id="mLive" type="button">Conectar</button>
+    <button class="mi host-only" id="mSource" type="button"></button>
     <button class="mi" id="mDemo" type="button">Demonstração</button>
     <button class="mi" id="mReplay" type="button">Reproduzir log…</button>
     <hr>
@@ -188,12 +189,15 @@ const post=m=>{if(HOST)HOST.postMessage(m)};
 const ROLE={PLD:"tank",WAR:"tank",DRK:"tank",GNB:"tank",GLA:"tank",MRD:"tank",WHM:"heal",SCH:"heal",AST:"heal",SGE:"heal",CNJ:"heal"};
 
 /* ================= Estado ================= */
-const S={me:"",mode:"idle",link:"idle",tab:store.get("rm-tab2","dps"),sel:null,view:"live",cur:null,savedKey:"",history:[],
+const S={me:"",mode:"idle",source:HOST?"builtin":"iinact",linkDetail:"",link:"idle",tab:store.get("rm-tab2","dps"),sel:null,view:"live",cur:null,savedKey:"",history:[],
   dpsMode:store.get("rm-dpsmode","enc")};   // "enc": dano ÷ duração da luta (padrão ACT) · "active": dano ÷ tempo ativo do jogador
 // lutas antigas do histórico não têm dpsAct
 const dpsOf=c=>S.dpsMode==="active"&&c.dpsAct?c.dpsAct:c.dps;
 try{S.history=JSON.parse(store.get("rm-hist3","[]"))||[]}catch(e){S.history=[]}
-const LE=RhalgrEngine.create({onEnd:snap=>{if(S.mode==="demo"||S.mode==="replay"){S.cur=snap;saveHistory(snap)}}});
+// motor local (engine.js): calcula tudo na demonstração, na reprodução de log e ao vivo com o motor embutido;
+// com o IINACT, os totais vêm dele e o motor local só calcula o dano por habilidade
+const ownTotals=()=>S.mode==="demo"||S.mode==="replay"||(S.mode==="live"&&S.source==="builtin");
+const LE=RhalgrEngine.create({onEnd:snap=>{if(ownTotals()){S.cur=snap;saveHistory(snap)}}});
 
 /* ================= Dados do IINACT/ACT (OverlayPlugin) ================= */
 function handle(msg){
@@ -202,7 +206,7 @@ function handle(msg){
   if(S.mode!=="live") return;
   switch(msg.type){
     case "CombatData": onCombat(msg);break;
-    case "LogLine":{const L=msg.line||String(msg.rawLine||"").split("|");LE.feed(L);if(L[0]==="02"&&L[3])S.me=L[3];break}
+    case "LogLine":{const L=msg.line||String(msg.rawLine||"").split("|");LE.feed(L);if(L[0]==="02"&&L[3])S.me=L[3];if(ownTotals()&&LE.active)S.cur=LE.snapshot();break}
     case "ChangePrimaryPlayer": if(msg.charName) S.me=msg.charName;break;
   }
   dirty();
@@ -247,7 +251,8 @@ const TABS={
   heal:{head:["","Jogador","HPS","%","Over"],val:c=>c.hps,cells:c=>[fmt(c.hps),c.healPct,c.over],total:e=>[e.hps,"HPS da party"]},
   tank:{head:["","Jogador","DTPS","%","Mortes"],val:c=>c.taken,cells:(c,e,tot)=>[fmt(c.taken/e.dur),Math.round(c.taken/tot*100)+"%",String(c.deaths)],total:e=>[e.combatants.reduce((a,c)=>a+c.taken,0)/e.dur,"dano recebido/s"]}
 };
-const MODE_LBL={live:"Ao vivo",wait:"Conectando…",err:"Sem conexão",idle:"Desconectado",demo:"Demonstração",replay:"Reproduzindo log"};
+const MODE_LBL={live:"Ao vivo",wait:"Conectando…",err:"Sem conexão",idle:"Desconectado",demo:"Demonstração",replay:"Reproduzindo log",setup:"Preparando…"};
+const modeLabel=m=>m==="wait"&&S.source==="builtin"?"Esperando o jogo…":m==="err"&&S.source==="builtin"?"Erro no motor":MODE_LBL[m]||"";
 let pending=false;
 function dirty(){if(!pending){pending=true;requestAnimationFrame(render)}}
 function viewEnc(){return S.view==="live"?S.cur:S.history[+S.view]}
@@ -268,13 +273,17 @@ function render(){
       <span class="job" style="background:${col}">${esc(c.job||"LB")}</span><span class="pname">${esc(c.me?"Você":c.name)}${c.deaths?` <span class="dead">✝${c.deaths}</span>`:""}</span>
       <span class="v1 num">${cells[0]}</span><span class="v2 num">${esc(cells[1])}</span><span class="v3 num">${esc(cells[2])}</span></button>`}).join(""));
   } else {
-    const hint=S.mode==="live"?"Entre em combate para ver os números.":S.mode==="err"||S.mode==="wait"?"Esperando o IINACT. Abra o menu ⋯ para ver a demonstração ou reproduzir um log.":"Sem dados ainda.";
+    const hint=S.mode==="live"?"Entre em combate para ver os números."
+      :S.mode==="setup"?"Preparando o motor do ACT. Na primeira vez ele é baixado (uns 4 MB)."
+      :S.mode==="wait"&&S.source==="builtin"?"Esperando o FFXIV. Abra o jogo normalmente; não precisa de plugin nenhum."
+      :S.mode==="err"||S.mode==="wait"?"Esperando o IINACT. Abra o menu ⋯ para ver a demonstração ou reproduzir um log.":"Sem dados ainda.";
     setHTML($("rows"),`<div class="empty">${e?"Ninguém nesta categoria ainda.":hint}</div>`);
   }
   renderDetail(e);
   $("dot").className="dot "+S.mode;
-  $("modeLbl").textContent=(S.view!=="live"?"Histórico · ":"")+(MODE_LBL[S.mode]||"");
-  $("mLive").textContent=S.mode==="live"||S.mode==="wait"||S.mode==="err"?"Reconectar ao IINACT":"Voltar ao IINACT (ao vivo)";
+  $("modeLbl").textContent=(S.view!=="live"?"Histórico · ":"")+modeLabel(S.mode);
+  const src=S.source==="builtin"?"o motor embutido":"o IINACT";
+  $("mLive").textContent=["live","wait","err","setup"].includes(S.mode)?"Reconectar "+(S.source==="builtin"?"ao motor embutido":"ao IINACT"):"Voltar ao vivo ("+src+")";
 }
 function renderDetail(e){
   const box=$("detail"); const c=e&&S.sel?e.combatants.find(x=>x.name===S.sel):null;
@@ -321,17 +330,19 @@ $("histSel").onchange=e=>{S.view=e.target.value;S.sel=null;dirty()};
 /* ================= Mensagens ================= */
 function showMsg(t){const m=$("msg");m.hidden=!t;m.textContent=t||""}
 function linkMsg(){
-  if(S.mode!=="err") {showMsg("");return}
-  showMsg(`Não conectou em ${WS_URL}. Confira se o IINACT está rodando (no jogo: /iinact) com o servidor WebSocket ligado. Tentando de novo a cada 3s.`);
+  if(S.mode==="setup"){showMsg(S.linkDetail||"Preparando o motor do ACT…");return}
+  if(S.mode!=="err"){showMsg("");return}
+  if(S.source==="builtin") showMsg(S.linkDetail||"O motor do ACT parou. Use o menu ⋯ para tentar de novo ou trocar para o IINACT.");
+  else showMsg(`Não conectou em ${WS_URL}. Confira se o IINACT está rodando (no jogo: /iinact) com o servidor WebSocket ligado. Tentando de novo a cada 3s.`);
 }
 
 /* ================= Conexão ao vivo ================= */
 let ws=null,retry=null;
-function setLink(st){S.link=st;if(["live","wait","err","idle"].includes(S.mode)){S.mode=st;linkMsg();dirty()}}
+function setLink(st,detail){S.link=st;S.linkDetail=detail||"";if(["live","wait","err","idle","setup"].includes(S.mode)){S.mode=st;linkMsg();dirty()}}
 function connectLive(){
   stopReplay(); LE.reset(); S.cur=null; S.view="live"; fillHist();
   S.mode="wait"; showMsg(""); dirty(); $("rp").hidden=true;
-  if(HOST){post({cmd:"connect",url:WS_URL});return}
+  if(HOST){post({cmd:"connect",url:WS_URL,source:S.source});return}
   disconnectBrowser();
   try{ws=new WebSocket(WS_URL)}catch(e){setLink("err");return}
   let opened=false;
@@ -462,6 +473,9 @@ $("bMenu").onclick=ev=>{ev.stopPropagation();toggleMenu(menu.hidden)};
 document.addEventListener("click",ev=>{if(!menu.hidden&&!menu.contains(ev.target))toggleMenu(false)});
 document.addEventListener("keydown",ev=>{if(ev.key==="Escape")toggleMenu(false)});
 $("mLive").onclick=()=>{toggleMenu(false);connectLive()};
+function updateSourceItem(){$("mSource").textContent=S.source==="builtin"?"Fonte: motor embutido · trocar para IINACT":"Fonte: IINACT · trocar para o motor embutido"}
+$("mSource").onclick=()=>{S.source=S.source==="builtin"?"iinact":"builtin";updateSourceItem();toggleMenu(false);connectLive()};
+updateSourceItem();
 $("mDemo").onclick=()=>{toggleMenu(false);startReplay(demoLog(),"Demonstração","demo")};
 $("mReplay").onclick=()=>{toggleMenu(false);openLog()};
 function setDpsMode(m){
@@ -495,7 +509,8 @@ if(HOST){
     const m=ev.data; if(!m||!m.host) return;
     switch(m.host){
       case "batch": for(const s of m.items){try{handle(JSON.parse(s))}catch(e){}} break;
-      case "status": setLink(m.value); break;
+      case "status": setLink(m.value,m.detail); break;
+      case "source": S.source=m.value; updateSourceItem(); dirty(); break;
       case "locked": setLocked(!!m.value); break;
       case "replay": startReplay(parseLog(m.text||""),m.name||"log","replay"); break;
       case "menu":

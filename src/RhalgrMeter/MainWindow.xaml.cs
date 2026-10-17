@@ -18,6 +18,7 @@ public partial class MainWindow : Window
 
     readonly Settings settings = Settings.Load();
     readonly IinactClient client = new();
+    readonly Engine.EngineHost engineHost = new();
     readonly ConcurrentQueue<string> inbox = new();
     readonly DispatcherTimer flush = new() { Interval = TimeSpan.FromMilliseconds(100) };
     readonly DispatcherTimer pointer = new(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(8) };
@@ -55,8 +56,16 @@ public partial class MainWindow : Window
         Closing += (_, _) => SaveWindow();
         Closed += (_, _) => Cleanup();
 
-        client.StatusChanged += st => Dispatcher.InvokeAsync(() => Send(new { host = "status", value = st }));
+        client.StatusChanged += st => Dispatcher.InvokeAsync(() =>
+        {
+            if (settings.DataSource == "iinact") Send(new { host = "status", value = st, detail = "" });
+        });
         client.MessageReceived += msg => inbox.Enqueue(msg);
+        engineHost.StatusChanged += (st, detail) => Dispatcher.InvokeAsync(() =>
+        {
+            if (settings.DataSource == "builtin") Send(new { host = "status", value = st, detail });
+        });
+        engineHost.MessageReceived += msg => inbox.Enqueue(msg);
         flush.Tick += (_, _) => FlushInbox();
         flush.Start();
         pointer.Tick += (_, _) => TrackPointer();
@@ -109,7 +118,7 @@ public partial class MainWindow : Window
 
     async Task InitWebAsync()
     {
-        string dataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RhalgrMeter", "WebView2");
+        string dataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppInfo.Id, "WebView2");
         try
         {
             env = await CoreWebView2Environment.CreateAsync(null, dataDir);
@@ -190,15 +199,16 @@ public partial class MainWindow : Window
                 pageReady = true;
                 Send(new { host = "locked", value = locked });
                 if (m.TryGetProperty("url", out var u) && u.GetString() is string url && url.Length > 0) settings.WsUrl = url;
-                client.Start(settings.WsUrl);
+                StartSource();
                 break;
             case "connect":
                 if (m.TryGetProperty("url", out var u2) && u2.GetString() is string url2 && url2.Length > 0) settings.WsUrl = url2;
-                while (inbox.TryDequeue(out _)) { }
-                client.Start(settings.WsUrl);
+                if (m.TryGetProperty("source", out var s) && s.GetString() is "builtin" or "iinact") settings.DataSource = s.GetString()!;
+                StartSource();
                 break;
             case "disconnect":
                 client.Stop();
+                engineHost.Pause();
                 while (inbox.TryDequeue(out _)) { }
                 break;
             case "drag": BeginGesture(Gesture.Move); break;
@@ -208,6 +218,24 @@ public partial class MainWindow : Window
             case "quit": Close(); break;
             case "openLog": _ = OpenLogAsync(); break;
         }
+    }
+
+    /// <summary>Liga a fonte de dados escolhida (motor embutido ou IINACT) e desliga a outra.</summary>
+    void StartSource()
+    {
+        while (inbox.TryDequeue(out _)) { }
+        Send(new { host = "source", value = settings.DataSource });
+        if (settings.DataSource == "iinact")
+        {
+            engineHost.Pause();
+            client.Start(settings.WsUrl);
+        }
+        else
+        {
+            client.Stop(silent: true);
+            engineHost.Start();
+        }
+        settings.Save();
     }
 
     // ================= Mover e redimensionar =================
@@ -306,7 +334,8 @@ public partial class MainWindow : Window
             Filter = "Logs do IINACT/ACT (*.log)|*.log|Todos os arquivos (*.*)|*.*",
         };
         string iinact = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "IINACT");
-        if (Directory.Exists(iinact)) dlg.InitialDirectory = iinact;
+        if (Directory.Exists(Engine.EngineHost.LogFolder)) dlg.InitialDirectory = Engine.EngineHost.LogFolder;
+        else if (Directory.Exists(iinact)) dlg.InitialDirectory = iinact;
         if (dlg.ShowDialog(this) != true) return;
 
         string path = dlg.FileName;
@@ -363,6 +392,7 @@ public partial class MainWindow : Window
         flush.Stop();
         pointer.Stop();
         client.Dispose();
+        engineHost.Dispose();
         if (hwnd != IntPtr.Zero)
         {
             Native.UnregisterHotKey(hwnd, HotkeyLock);

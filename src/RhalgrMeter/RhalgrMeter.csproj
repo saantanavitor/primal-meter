@@ -29,6 +29,26 @@
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
   </ItemGroup>
 
+  <!-- Motor embutido: NotACT (imita o ACT) e o instalador do motor -->
+  <ItemGroup>
+    <ProjectReference Include="..\NotACT\NotACT.csproj" />
+    <ProjectReference Include="..\EngineSetup\EngineSetup.csproj" />
+  </ItemGroup>
+
+  <!-- O FFXIV_ACT_Plugin não é redistribuído: estas referências servem só para compilar
+       (gere a pasta com tools/fetch-engine.ps1). Em execução, as DLLs vêm de %LOCALAPPDATA%\RhalgrMeter\engine. -->
+  <ItemGroup>
+    <Reference Include="FFXIV_ACT_Plugin"><HintPath>..\..\external_dependencies\FFXIV_ACT_Plugin.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="FFXIV_ACT_Plugin.Common"><HintPath>..\..\external_dependencies\FFXIV_ACT_Plugin.Common.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="FFXIV_ACT_Plugin.Config"><HintPath>..\..\external_dependencies\FFXIV_ACT_Plugin.Config.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="FFXIV_ACT_Plugin.Logfile"><HintPath>..\..\external_dependencies\FFXIV_ACT_Plugin.Logfile.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="FFXIV_ACT_Plugin.Memory"><HintPath>..\..\external_dependencies\FFXIV_ACT_Plugin.Memory.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="FFXIV_ACT_Plugin.Parse"><HintPath>..\..\external_dependencies\FFXIV_ACT_Plugin.Parse.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="FFXIV_ACT_Plugin.Resource"><HintPath>..\..\external_dependencies\FFXIV_ACT_Plugin.Resource.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Machina"><HintPath>..\..\external_dependencies\Machina.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Machina.FFXIV"><HintPath>..\..\external_dependencies\Machina.FFXIV.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+
   <!-- A interface (pasta web/ na raiz) vai embutida no .exe -->
   <ItemGroup>
     <EmbeddedResource Include="..\..\web\*.*" LogicalName="web/%(Filename)%(Extension)" />

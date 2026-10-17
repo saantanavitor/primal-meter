@@ -11,7 +11,7 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        single = new Mutex(true, "RhalgrMeter.SingleInstance", out bool first);
+        single = new Mutex(true, AppInfo.Id + ".SingleInstance", out bool first);
         if (!first)
         {
             MessageBox.Show("O Rhalgr Meter já está aberto. Procure o ícone dele na bandeja, perto do relógio.",

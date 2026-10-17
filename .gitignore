@@ -3,3 +3,5 @@ obj/
 dist/
 .vs/
 *.user
+.work/
+external_dependencies/

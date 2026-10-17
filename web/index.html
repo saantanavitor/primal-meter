@@ -57,7 +57,7 @@ html.locked .bar{display:none}
 .ov-tabs button{background:none;border:none;padding:6px 0;font-weight:600;font-size:.84rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent}
 .ov-tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
 .cols-head{display:grid;grid-template-columns:34px minmax(0,1fr) 64px 46px 46px;gap:8px;padding:6px 16px 2px;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.cols-head span:nth-child(n+3){text-align:right}
+.cols-head span:nth-child(n+3){text-align:right;white-space:nowrap}
 .pane{padding:4px 8px 8px;flex:1;min-height:60px;overflow-y:auto}
 
 /* Linhas */
@@ -138,6 +138,8 @@ html:not(.host) .host-only{display:none}
     <button class="mi" id="mDemo" type="button">Demonstração</button>
     <button class="mi" id="mReplay" type="button">Reproduzir log…</button>
     <hr>
+    <button class="mi" id="mDpsMode" type="button"></button>
+    <div class="hint" id="mDpsHint"></div>
     <label for="mAlpha">Opacidade do fundo</label>
     <div class="row"><input type="range" id="mAlpha" min="20" max="100" step="5"><span class="num" id="mAlphaV" style="font-size:.74rem;width:34px;text-align:right"></span></div>
     <label for="mUrl">Endereço do IINACT</label>
@@ -186,7 +188,10 @@ const post=m=>{if(HOST)HOST.postMessage(m)};
 const ROLE={PLD:"tank",WAR:"tank",DRK:"tank",GNB:"tank",GLA:"tank",MRD:"tank",WHM:"heal",SCH:"heal",AST:"heal",SGE:"heal",CNJ:"heal"};
 
 /* ================= Estado ================= */
-const S={me:"",mode:"idle",link:"idle",tab:store.get("rm-tab2","dps"),sel:null,view:"live",cur:null,savedKey:"",history:[]};
+const S={me:"",mode:"idle",link:"idle",tab:store.get("rm-tab2","dps"),sel:null,view:"live",cur:null,savedKey:"",history:[],
+  dpsMode:store.get("rm-dpsmode","enc")};   // "enc": dano ÷ duração da luta (padrão ACT) · "active": dano ÷ tempo ativo do jogador
+// lutas antigas do histórico não têm dpsAct
+const dpsOf=c=>S.dpsMode==="active"&&c.dpsAct?c.dpsAct:c.dps;
 try{S.history=JSON.parse(store.get("rm-hist3","[]"))||[]}catch(e){S.history=[]}
 const LE=RhalgrEngine.create({onEnd:snap=>{if(S.mode==="demo"||S.mode==="replay"){S.cur=snap;saveHistory(snap)}}});
 
@@ -202,14 +207,21 @@ function handle(msg){
   }
   dirty();
 }
-function num(v){if(v==null)return 0;let s=String(v).replace(/[^\d.,-]/g,"");if(s.includes(",")&&!s.includes("."))s=s.replace(",",".");else s=s.replace(/,/g,"");const n=parseFloat(s);return isFinite(n)?n:0}
+// O IINACT formata pela região do Windows: "896,33" no Brasil, "896.33" em inglês. Com os dois sinais, o último é o decimal.
+function num(v){
+  if(v==null)return 0;
+  let s=String(v).replace(/[^\d.,-]/g,"");
+  const dot=s.lastIndexOf("."), comma=s.lastIndexOf(",");
+  if(comma>dot)s=s.replace(/\./g,"").replace(",",".");else s=s.replace(/,/g,"");
+  const n=parseFloat(s);return isFinite(n)?n:0;
+}
 function splitMax(s){if(!s)return null;s=String(s);const i=s.lastIndexOf("-");if(i<0)return null;const v=num(s.slice(i+1));return v?{n:s.slice(0,i),v}:null}
 function onCombat(d){
   const e=d.Encounter||{}, dur=num(e.DURATION), active=String(d.isActive)==="true";
   const list=Object.values(d.Combatant||{}).map(c=>{
     const name=(c.name==="YOU"&&S.me)?S.me:c.name;
     return {name,job:String(c.Job||"").toUpperCase(),
-      dps:num(c.encdps),dmg:num(c.damage),dmgPct:c["damage%"]||"0%",crit:c["crithit%"]||"0%",dh:c.DirectHitPct||"0%",maxhit:splitMax(c.maxhit),
+      dps:num(c.encdps),dpsAct:num(c.dps),dmg:num(c.damage),dmgPct:c["damage%"]||"0%",crit:c["crithit%"]||"0%",dh:c.DirectHitPct||"0%",maxhit:splitMax(c.maxhit),
       hps:num(c.enchps),heal:num(c.healed),healPct:c["healed%"]||"0%",over:c.OverHealPct||"0%",maxheal:splitMax(c.maxheal),
       taken:num(c.damagetaken),deaths:num(c.deaths),me:name===S.me||c.name==="YOU"};
   }).filter(c=>c.dps>0||c.hps>0||c.taken>0||c.me);
@@ -231,7 +243,7 @@ function saveHistory(c){
 const fmt=n=>Math.round(n).toLocaleString("pt-BR");
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const TABS={
-  dps:{head:["","Jogador","DPS","%","Crít"],val:c=>c.dps,cells:c=>[fmt(c.dps),c.dmgPct,c.crit],total:e=>[e.dps,"DPS da party"]},
+  dps:{get head(){return ["","Jogador",S.dpsMode==="active"?"DPS ativo":"DPS","%","Crít"]},val:c=>dpsOf(c),cells:c=>[fmt(dpsOf(c)),c.dmgPct,c.crit],total:e=>[e.dps,"DPS da party"]},
   heal:{head:["","Jogador","HPS","%","Over"],val:c=>c.hps,cells:c=>[fmt(c.hps),c.healPct,c.over],total:e=>[e.hps,"HPS da party"]},
   tank:{head:["","Jogador","DTPS","%","Mortes"],val:c=>c.taken,cells:(c,e,tot)=>[fmt(c.taken/e.dur),Math.round(c.taken/tot*100)+"%",String(c.deaths)],total:e=>[e.combatants.reduce((a,c)=>a+c.taken,0)/e.dur,"dano recebido/s"]}
 };
@@ -277,8 +289,8 @@ function renderDetail(e){
   const topV=acts.length?(tot?acts[0].v:acts[0].n):1;
   setHTML(box,`<div class="d-head"><h3>${esc(c.me?"Você":c.name)} <span class="muted" style="font-weight:500">· ${esc(c.job||"—")}</span></h3><button type="button" class="x" id="dClose" aria-label="Fechar detalhes">✕</button></div>
    <div class="stats">
-    <div class="st"><b>${fmt(c.dps)}</b><span>DPS</span></div><div class="st"><b>${fmt(c.dmg)}</b><span>Dano total</span></div><div class="st"><b>${esc(c.dmgPct)}</b><span>% do dano</span></div>
-    <div class="st"><b>${esc(c.crit)}</b><span>Crítico</span></div><div class="st"><b>${esc(c.dh)}</b><span>Direct hit</span></div><div class="st"><b>${c.deaths}</b><span>Mortes</span></div>
+    <div class="st" title="Dano ÷ duração da luta (padrão do ACT)"><b>${fmt(c.dps)}</b><span>DPS na luta</span></div><div class="st" title="Dano ÷ tempo entre o primeiro e o último golpe deste jogador"><b>${c.dpsAct?fmt(c.dpsAct):"—"}</b><span>DPS ativo</span></div><div class="st"><b>${fmt(c.dmg)}</b><span>Dano total</span></div>
+    <div class="st"><b>${esc(c.crit)}</b><span>Crítico</span></div><div class="st"><b>${esc(c.dh)}</b><span>Direct hit</span></div><div class="st"><b>${esc(c.dmgPct)}</b><span>% do dano</span></div>
     <div class="st"><b>${fmt(c.hps)}</b><span>HPS</span></div><div class="st"><b>${esc(c.over)}</b><span>Overheal</span></div><div class="st"><b>${fmt(c.taken/e.dur)}</b><span>Dano recebido/s</span></div>
    </div>
    <div class="stats" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
@@ -452,6 +464,16 @@ document.addEventListener("keydown",ev=>{if(ev.key==="Escape")toggleMenu(false)}
 $("mLive").onclick=()=>{toggleMenu(false);connectLive()};
 $("mDemo").onclick=()=>{toggleMenu(false);startReplay(demoLog(),"Demonstração","demo")};
 $("mReplay").onclick=()=>{toggleMenu(false);openLog()};
+function setDpsMode(m){
+  S.dpsMode=m; store.set("rm-dpsmode",m);
+  $("mDpsMode").textContent=m==="active"?"DPS: tempo ativo de cada jogador":"DPS: duração da luta (padrão ACT)";
+  $("mDpsHint").textContent=m==="active"
+    ?"Melhor no boneco e no mundo aberto, onde estranhos mantêm a luta aberta. Clique para voltar ao padrão do ACT."
+    :"Igual ao ACT e ao FFLogs, o justo em raide. No boneco com outras pessoas batendo, use o tempo ativo.";
+  dirty();
+}
+$("mDpsMode").onclick=()=>setDpsMode(S.dpsMode==="active"?"enc":"active");
+setDpsMode(S.dpsMode);
 $("mClear").onclick=()=>{S.history=[];S.view="live";store.set("rm-hist3","[]");fillHist();toggleMenu(false);dirty()};
 $("mHide").onclick=()=>{toggleMenu(false);post({cmd:"hide"})};
 $("mQuit").onclick=()=>post({cmd:"quit"});

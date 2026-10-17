@@ -66,6 +66,8 @@ function create(opts) {
   function addDamage(so, tgt, tgtName, ab, v, crit, dh) {
     const p = player(so), a = act(p, ab);
     p.dmg += v; p.hits++; a.dmg += v; a.hits++;
+    if (!p.first) p.first = enc.last;
+    p.lastHit = enc.last;
     if (crit) { p.crits++; a.crit++; }
     if (dh) { p.dhs++; a.dh++; }
     if (v > a.max) a.max = v;
@@ -154,7 +156,8 @@ function create(opts) {
       const e = ents.get(p.id) || {};
       return {
         name: e.name || p.name || p.id, job: e.job || "",
-        dps: p.dmg / dur, dmg: p.dmg, dmgPct: pct(p.dmg, totD), crit: pct(p.crits, p.hits), dh: pct(p.dhs, p.hits), maxhit: p.maxhit,
+        // dps: pela duração da luta (como o ENCDPS do ACT); dpsAct: pelo tempo entre o primeiro e o último golpe do jogador
+        dps: p.dmg / dur, dpsAct: p.first ? p.dmg / Math.max(1, (p.lastHit - p.first) / 1000) : 0, dmg: p.dmg, dmgPct: pct(p.dmg, totD), crit: pct(p.crits, p.hits), dh: pct(p.dhs, p.hits), maxhit: p.maxhit,
         hps: p.heal / dur, heal: p.heal, healPct: pct(p.heal, totH), over: pct(p.over, p.heal + p.over), maxheal: p.maxheal,
         taken: p.taken, deaths: p.deaths, me: p.id === meId
       };

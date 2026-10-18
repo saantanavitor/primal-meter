@@ -45,8 +45,9 @@ html.host:not(.locked) .ov-top{cursor:move}
 .dot.demo,.dot.replay{background:var(--accent)}
 .dot.err{background:var(--bad)}
 .dot.wait{background:var(--warn)}
-.lockmark{display:none;font-size:.75rem}
-html.locked .lockmark{display:inline}
+.lockpill{display:none;align-items:center;gap:4px;padding:0 7px;height:18px;border:1px solid var(--accent);border-radius:999px;color:var(--accent);background:rgba(240,138,62,.12);font-size:.7rem;font-weight:600;flex:none}
+.lockpill svg{width:10px;height:10px}
+html.locked .lockpill{display:inline-flex}
 .bar{grid-column:1/-1;display:flex;gap:6px;align-items:center;margin-top:5px}
 .bar select{flex:1;min-width:0;background:var(--row);border:1px solid var(--line);border-radius:5px;padding:3px 6px;font-size:.82rem;cursor:pointer}
 .ib{background:var(--row);border:1px solid var(--line);border-radius:5px;width:28px;height:26px;display:grid;place-items:center;cursor:pointer;color:var(--muted);flex:none;padding:0}
@@ -126,7 +127,7 @@ html:not(.host) .host-only{display:none}
   <div class="ov-top" id="top">
     <div class="ov-title" id="encTitle"></div>
     <div class="ov-time num" id="encTime">00:00</div>
-    <div class="ov-sub"><span class="dot" id="dot"></span><span id="modeLbl"></span><span class="lockmark" data-i18n-title="lockedHint">🔒</span></div>
+    <div class="ov-sub"><span class="dot" id="dot"></span><span id="modeLbl"></span><span class="lockpill" id="lockPill" data-i18n-title="lockedHint"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg><span class="num">Ctrl+Shift+L</span></span></div>
     <div class="ov-total"><span class="num" id="total">0</span> <span id="totalLbl"></span></div>
     <div class="bar">
       <select id="histSel" data-i18n-label="fight"></select>
@@ -194,7 +195,7 @@ const ROLE={PLD:"tank",WAR:"tank",DRK:"tank",GNB:"tank",GLA:"tank",MRD:"tank",WH
 // português é o idioma principal; o inglês é opcional (menu ⋯ → Idioma)
 const I18N={
  "pt-BR":{
-  waiting:"Aguardando combate",combat:"Combate",lockedHint:"Travado: Ctrl+Shift+L destrava",fight:"Luta",lock:"Travar",lockTip:"Travar (Ctrl+Shift+L): o mouse passa para o jogo",
+  waiting:"Aguardando combate",combat:"Combate",lockedHint:"Travado: use Ctrl+Shift+L para destravar",fight:"Luta",lock:"Travar",lockTip:"Travar (Ctrl+Shift+L): o mouse passa para o jogo",
   demo:"Demonstração",replayLog:"Reproduzir log…",opacity:"Opacidade do fundo",iinactUrl:"Endereço do IINACT",clearHistory:"Limpar histórico",lang:"Idioma: Português · switch to English",
   hotkeys:"Ctrl+Shift+L trava/destrava · Ctrl+Shift+H mostra/oculta",hideTray:"Ocultar na bandeja",quit:"Sair",tabHeal:"Cura",tabTank:"Tanque",
   skipEnd:"Processar o resto do log de uma vez",stopReplay:"Parar e voltar ao vivo",resize:"Redimensionar",
@@ -216,7 +217,7 @@ const I18N={
   dpsHintFight:"Igual ao ACT e ao FFLogs, o justo em raide. No boneco com outras pessoas batendo, use o tempo ativo.",
   dummy:"Boneco de Treino",arena:"Arena de Treino",raidwide:"Golpe Sísmico"},
  en:{
-  waiting:"Waiting for combat",combat:"Combat",lockedHint:"Locked: Ctrl+Shift+L unlocks",fight:"Fight",lock:"Lock",lockTip:"Lock (Ctrl+Shift+L): the mouse goes through to the game",
+  waiting:"Waiting for combat",combat:"Combat",lockedHint:"Locked: press Ctrl+Shift+L to unlock",fight:"Fight",lock:"Lock",lockTip:"Lock (Ctrl+Shift+L): the mouse goes through to the game",
   demo:"Demo",replayLog:"Replay log…",opacity:"Background opacity",iinactUrl:"IINACT address",clearHistory:"Clear history",lang:"Language: English · mudar para Português",
   hotkeys:"Ctrl+Shift+L locks/unlocks · Ctrl+Shift+H shows/hides",hideTray:"Hide to tray",quit:"Quit",tabHeal:"Heal",tabTank:"Tank",
   skipEnd:"Process the rest of the log at once",stopReplay:"Stop and go back to live",resize:"Resize",
@@ -565,6 +566,7 @@ $("mUrl").value=WS_URL;
 $("mUrlOk").onclick=()=>{const v=$("mUrl").value.trim()||DEFAULT_WS;WS_URL=v;store.set("rm-ws",v);toggleMenu(false);connectLive()};
 $("mUrl").onkeydown=e=>{if(e.key==="Enter")$("mUrlOk").click()};
 
+// travado, o medidor ignora o mouse; a pílula ao lado do status mostra o atalho que destrava
 function setLocked(v){docEl.classList.toggle("locked",v);$("bLock").setAttribute("aria-pressed",String(v));if(v)toggleMenu(false)}
 $("bLock").onclick=()=>post({cmd:"lock",value:true});
 $("top").addEventListener("mousedown",ev=>{if(ev.button!==0||ev.target.closest("select,button,input"))return;ev.preventDefault();post({cmd:"drag"})});

@@ -92,7 +92,7 @@ Para não depender de plugins, o Primal Meter faz exatamente o que o ACT faz:
 - **Baixa o motor de parse do ACT** (FFXIV_ACT_Plugin, do autor Ravahn) da [página oficial de releases](https://github.com/ravahn/FFXIV_ACT_Plugin/releases) e o guarda em `%LOCALAPPDATA%\PrimalMeter\engine`. A cada abertura, ele consulta essa página para ver se saiu uma versão nova.
 - **Lê a memória do jogo** para saber nomes, jobs, party e zona. Ele só lê, nunca escreve.
 - **Injeta no jogo o [Deucalion](https://github.com/ff14wed/deucalion)**, uma DLL pequena e de código aberto que vem junto com o motor do ACT. Ela repassa ao medidor os pacotes de combate que o jogo recebe. A cópia usada fica em `C:\ProgramData\PrimalMeter\deucalion`.
-- **Ao fechar o medidor, desliga o Deucalion**, e o jogo fica como estava antes.
+- **Ao fechar o medidor, o Deucalion se desliga sozinho**, e o jogo fica como estava antes.
 
 E o que ele **não** faz:
 
@@ -124,6 +124,7 @@ E o que ele **não** faz:
 | --- | --- |
 | Fica em "Esperando o jogo…" com o jogo aberto | Feche e abra o medidor de novo. Se o seu antivírus bloqueou o Deucalion, adicione uma exceção para `C:\ProgramData\PrimalMeter`. |
 | "Erro no motor" | O erro aparece na mensagem amarela. O detalhe fica em `%APPDATA%\PrimalMeter\motor.log`. Logo depois de um patch grande do jogo, o motor do ACT pode levar algumas horas para ser atualizado pelo autor; reabra o medidor mais tarde. |
+| O IINACT parou de capturar depois que fechei o Primal Meter | Desative e ative o IINACT em `/xlplugins`. Para evitar, ligue o IINACT antes de abrir o Primal Meter. |
 | "Preparando…" não termina | O primeiro uso precisa de internet para baixar o motor. Confira a conexão e reabra. |
 | O medidor não aparece por cima do jogo | Coloque o jogo em **Janela sem bordas**. |
 | Não consigo clicar no medidor | Ele está travado. Aperte **Ctrl+Shift+L**. |
@@ -148,7 +149,8 @@ FFXIV ◄── Deucalion (injetado) ──pipe──┐
 - **`src/NotACT`**: camada que imita o Advanced Combat Tracker para o motor. Veio do [IINACT](https://github.com/marzent/IINACT).
 - **`src/EngineSetup`**: baixa o motor da release oficial, extrai as DLLs embutidas e aplica as correções para o .NET moderno. O motor **nunca é redistribuído**: cada pessoa o baixa na própria máquina.
 - **`web/index.html`**: a interface. Vai embutida no `.exe` e também funciona sozinha no navegador ou no Browsingway (`index.html?OVERLAY_WS=ws://127.0.0.1:10501/ws`).
-- **`web/engine.js`**: transforma as linhas de log do ACT em lutas, totais e dano por habilidade (tipos 21/22 ações, 24 DoT/HoT, 25 mortes, 03/261 combatentes, 260 estado de combate).
+- **Totais ao vivo**: vêm do próprio ACT (NotACT), com as regras dele: escudos contam como cura, o Limit Break aparece separado e cada luta termina 5 segundos depois que o jogo sai de combate (ou no wipe), como no IINACT.
+- **`web/engine.js`**: calcula o dano por habilidade e, na demonstração e na reprodução de log, também os totais, a partir das linhas de log do ACT (tipos 21/22 ações, 24 DoT/HoT, 25 mortes, 03/261 combatentes, 260 estado de combate).
 
 ## Desenvolvimento
 
@@ -184,9 +186,9 @@ powershell -ExecutionPolicy Bypass -File tools/publish.ps1
 
 ## Limitações conhecidas
 
-- Com o motor embutido, os totais são calculados pelo `engine.js` a partir das linhas do motor do ACT. Nos testes, o resultado bateu com o do IINACT. Uma diferença conhecida: **escudos não contam como cura**, e no ACT contam.
 - Logo depois de um patch grande do jogo, o medidor só volta a funcionar quando o autor do motor do ACT publicar a atualização, o que normalmente leva algumas horas.
 - Clicar no medidor destravado tira o foco do jogo. Trave antes de jogar.
+- **Usando junto com o IINACT** (por exemplo, para comparar números): ligue o IINACT **antes** de abrir o Primal Meter. Se o IINACT for ligado depois, fechar o Primal Meter desfaz a captura do IINACT até ele ser desativado e ativado de novo em `/xlplugins`. O mesmo acontece com o ACT e o IINACT juntos.
 
 ## Nome antigo
 

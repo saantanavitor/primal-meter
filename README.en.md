@@ -94,7 +94,7 @@ To avoid depending on plugins, Primal Meter does exactly what ACT does:
 - **Downloads the ACT parsing engine** (FFXIV_ACT_Plugin, by Ravahn) from its [official releases page](https://github.com/ravahn/FFXIV_ACT_Plugin/releases) and keeps it in `%LOCALAPPDATA%\PrimalMeter\engine`. Every time it opens, it checks that page for a new version.
 - **Reads the game's memory** to know names, jobs, party and zone. It only reads, never writes.
 - **Injects [Deucalion](https://github.com/ff14wed/deucalion) into the game**, a small open-source DLL that ships with the ACT engine. It passes the combat packets the game receives on to the meter. The copy in use lives in `C:\ProgramData\PrimalMeter\deucalion`.
-- **Turns Deucalion off when the meter closes**, leaving the game as it was before.
+- **When the meter closes, Deucalion turns itself off**, leaving the game as it was before.
 
 And what it does **not** do:
 
@@ -126,6 +126,7 @@ And what it does **not** do:
 | --- | --- |
 | Stuck on "Waiting for the game…" with the game open | Close and reopen the meter. If your antivirus blocked Deucalion, add an exception for `C:\ProgramData\PrimalMeter`. |
 | "Engine error" | The error appears in the yellow message. Details are in `%APPDATA%\PrimalMeter\motor.log`. Right after a major game patch, the ACT engine may take a few hours to be updated by its author; reopen the meter later. |
+| IINACT stopped capturing after I closed Primal Meter | Disable and enable IINACT in `/xlplugins`. To avoid it, turn IINACT on before opening Primal Meter. |
 | "Preparing…" never finishes | The first run needs internet to download the engine. Check your connection and reopen. |
 | The meter doesn't appear over the game | Set the game to **Borderless Windowed**. |
 | I can't click the meter | It's locked. Press **Ctrl+Shift+L**. |
@@ -150,7 +151,8 @@ FFXIV ◄── Deucalion (injected) ──pipe──┐
 - **`src/NotACT`**: a layer that imitates Advanced Combat Tracker for the engine. It comes from [IINACT](https://github.com/marzent/IINACT).
 - **`src/EngineSetup`**: downloads the engine from the official release, extracts the embedded DLLs and applies the fixes for modern .NET. The engine is **never redistributed**: each person downloads it on their own machine.
 - **`web/index.html`**: the interface. It's embedded in the `.exe` and also works on its own in a browser or in Browsingway (`index.html?OVERLAY_WS=ws://127.0.0.1:10501/ws`).
-- **`web/engine.js`**: turns ACT log lines into fights, totals and damage by ability (types 21/22 actions, 24 DoT/HoT, 25 deaths, 03/261 combatants, 260 combat state).
+- **Live totals**: come from ACT itself (NotACT), with its rules: shields count as healing, Limit Break shows up separately and each fight ends 5 seconds after the game leaves combat (or on a wipe), like IINACT.
+- **`web/engine.js`**: calculates damage by ability and, in the demo and in log replay, the totals too, from ACT log lines (types 21/22 actions, 24 DoT/HoT, 25 deaths, 03/261 combatants, 260 combat state).
 
 ## Development
 
@@ -186,9 +188,9 @@ powershell -ExecutionPolicy Bypass -File tools/publish.ps1
 
 ## Known limitations
 
-- With the built-in engine, totals are calculated by `engine.js` from the ACT engine's lines. In tests, the result matched IINACT. One known difference: **shields don't count as healing**, while in ACT they do.
 - Right after a major game patch, the meter only works again once the ACT engine's author publishes the update, which usually takes a few hours.
 - Clicking the meter while unlocked takes focus away from the game. Lock it before playing.
+- **Using it together with IINACT** (for example, to compare numbers): turn IINACT on **before** opening Primal Meter. If IINACT is turned on afterwards, closing Primal Meter undoes IINACT's capture until it is disabled and enabled again in `/xlplugins`. The same happens with ACT and IINACT together.
 
 ## Former name
 

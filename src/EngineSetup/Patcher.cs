@@ -3,6 +3,7 @@
 // fora, então mantém a leitura de memória original do motor (como no ACT) e só aplica o necessário para o .NET moderno.
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 
 namespace PrimalMeter.EngineSetup;
 
@@ -69,6 +70,37 @@ internal class Patcher
             Enumerable.Range(0, 5).ToList().ForEach(_ => il.RemoveAt(stelemIndex + 1));
         }
         logfile.WriteOut();
+    }
+
+    /// <summary>
+    /// Quando o Deucalion já está no jogo (o medidor foi reaberto), ele responde "Detour is already initialized" ao
+    /// pedido de gancho, e o Machina desistia de capturar. Essa resposta quer dizer que o gancho já funciona, então
+    /// passa a ser aceita. Assim o Deucalion nunca precisa ser desligado: desligá-lo restaura o código original do
+    /// jogo e arranca junto os ganchos que outras ferramentas (IINACT, plugins) tenham posto depois dele.
+    /// </summary>
+    public void MachinaFFXIV()
+    {
+        var machina = new TargetAssembly(Path.Combine(workPath, "Machina.FFXIV.dll"));
+        var connect = machina.GetMethod("System.Void Machina.FFXIV.Deucalion.DeucalionClient::Connect(System.Int32)");
+        var body = connect.Body;
+        body.SimplifyMacros();   // desvios curtos podem passar do limite depois da inserção
+        var il = body.GetILProcessor();
+        var code = body.Instructions;
+        int i = code.ToList().FindIndex(x => x.OpCode == OpCodes.Ldstr && (string)x.Operand == "RECV OK");
+        if (i < 2 || code[i + 1].OpCode != OpCodes.Callvirt || code[i + 2].OpCode != OpCodes.Brtrue)
+            throw new InvalidOperationException("Trecho do RECV OK não encontrado em DeucalionClient.Connect");
+        var loadMessage = code[i - 2];   // ldloc da mensagem
+        var loadDebug = code[i - 1];     // ldfld debug
+        var contains = code[i + 1];
+        var branch = code[i + 2];
+        var after = code[i + 3];
+        il.InsertBefore(after, il.Create(loadMessage.OpCode, (VariableDefinition)loadMessage.Operand));
+        il.InsertBefore(after, il.Create(OpCodes.Ldfld, (FieldReference)loadDebug.Operand));
+        il.InsertBefore(after, il.Create(OpCodes.Ldstr, "already initialized"));
+        il.InsertBefore(after, il.Create(OpCodes.Callvirt, (MethodReference)contains.Operand));
+        il.InsertBefore(after, il.Create(OpCodes.Brtrue, (Instruction)branch.Operand));
+        body.OptimizeMacros();
+        machina.WriteOut();
     }
 
     /// <summary>Delegate.BeginInvoke não existe no .NET moderno: os eventos do motor passam a ser chamados direto.</summary>

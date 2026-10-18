@@ -10,7 +10,7 @@ namespace PrimalMeter.EngineSetup;
 public static class EngineInstaller
 {
     /// <summary>Muda quando as correções mudam, para reinstalar o motor já baixado.</summary>
-    public const string PatchMarker = "PRIMAL_ENGINE_PATCH_V2";
+    public const string PatchMarker = "PRIMAL_ENGINE_PATCH_V3";
     const string ReleasesApi = "https://api.github.com/repos/ravahn/FFXIV_ACT_Plugin/releases/latest";
 
     public static string DefaultFolder =>
@@ -63,6 +63,7 @@ public static class EngineInstaller
         patcher.MainPlugin();
         patcher.LogFilePlugin();
         patcher.MemoryPlugin();
+        patcher.MachinaFFXIV();
         return latest.Value.version;
     }
 

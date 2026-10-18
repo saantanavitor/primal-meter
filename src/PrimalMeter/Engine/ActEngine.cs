@@ -4,6 +4,7 @@
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Text.Json;
 using Advanced_Combat_Tracker;
 using FFXIV_ACT_Plugin;
 using FFXIV_ACT_Plugin.Common;
@@ -23,6 +24,7 @@ sealed class ActEngine : IDisposable
 {
     readonly FFXIV_ACT_Plugin.FFXIV_ACT_Plugin plugin;
     readonly ParseMediator parseMediator;
+    readonly LogOutput logOutput;
     readonly IProcessManager processManager;
 
     /// <summary>Linha de log no formato de rede do ACT ("21|data|..."). Chamado na thread de leitura do NotACT.</summary>
@@ -44,7 +46,7 @@ sealed class ActEngine : IDisposable
         parseMediator = ioc.Resolve<ParseMediator>();
         plugin._dataCollection = ioc.Resolve<DataCollection>();
 
-        var logOutput = (LogOutput)plugin._dataCollection._logOutput;
+        logOutput = (LogOutput)plugin._dataCollection._logOutput;
         var logFormat = plugin._dataCollection._logFormat;
         processManager = ((ScanMemory)plugin._dataCollection._scanMemory)._processManager;
 
@@ -101,7 +103,75 @@ sealed class ActEngine : IDisposable
     void OnBeforeLogLineRead(bool isImport, LogLineEventArgs info)
     {
         try { LineRead?.Invoke(info.logLine); } catch { }
+        // wipe: o jogo manda o comando de reinício da instância (linha 33, 4000000F); o IINACT encerra a luta aqui
+        if (info.logLine.StartsWith("33|") && info.logLine.Split('|') is { Length: > 3 } f && f[3] is "4000000F" or "40000010")
+            EndEncounter();
         (info.logLine, info.detectedType) = parseMediator.BeforeLogLineRead(isImport, info.detectedTime, info.logLine);
+    }
+
+    // campos que a interface usa (web/index.html, onCombat); ler todos custaria muito a cada segundo
+    static readonly string[] EncounterKeys = ["title", "duration", "DURATION", "encdps", "enchps", "CurrentZoneName"];
+    static readonly string[] CombatantKeys = ["name", "Job", "duration", "encdps", "dps", "damage", "damage%", "crithit%", "DirectHitPct", "maxhit",
+        "enchps", "healed", "healed%", "OverHealPct", "maxheal", "damagetaken", "deaths"];
+
+    /// <summary>
+    /// Totais da luta atual calculados pelo próprio ACT (NotACT): escudos como cura, Limit Break separado, DoTs
+    /// estimados e as regras de início e fim de luta do ACT. Mesmo formato do evento CombatData do OverlayPlugin
+    /// (baseado no MiniParseEventSource do IINACT). Devolve null se ainda não há luta.
+    /// </summary>
+    public string? BuildCombatData()
+    {
+        var encounter = ActGlobals.oFormActMain?.ActiveZone?.ActiveEncounter;
+        if (encounter == null || EncounterData.ExportVariables.Count == 0 || CombatantData.ExportVariables.Count == 0)
+            return null;
+        try
+        {
+            var allies = encounter.GetAllies();
+            var enc = new Dictionary<string, string>();
+            foreach (var key in EncounterKeys)
+                if (EncounterData.ExportVariables.TryGetValue(key, out var f))
+                    try { enc[key] = f.GetExportString(encounter, allies, ""); } catch { }
+
+            var combatants = new Dictionary<string, Dictionary<string, string>>();
+            foreach (var ally in allies)
+            {
+                var values = new Dictionary<string, string>();
+                foreach (var key in CombatantKeys)
+                    if (CombatantData.ExportVariables.TryGetValue(key, out var f))
+                        try { values[key] = f.GetExportString(ally, ""); } catch { }
+                combatants[ally.Name] = values;
+            }
+            return JsonSerializer.Serialize(new
+            {
+                type = "CombatData",
+                Encounter = enc,
+                Combatant = combatants,
+                isActive = encounter.Active ? "true" : "false",
+            });
+        }
+        catch
+        {
+            return null;   // a luta mudou no meio da leitura; o próximo segundo tenta de novo
+        }
+    }
+
+    /// <summary>Se o ACT (NotACT) considera que há uma luta em andamento.</summary>
+    public bool InActCombat => ActGlobals.oFormActMain?.InCombat == true;
+
+    /// <summary>Encerra a luta atual, como o comando "end" do ACT.</summary>
+    public void EndEncounter()
+    {
+        try { if (InActCombat) ActGlobals.oFormActMain.EndCombat(true); } catch { }
+    }
+
+    /// <summary>
+    /// Grava a linha 260 (estado de combate do ACT e do jogo), no mesmo formato do OverlayPlugin/IINACT. Ela também
+    /// separa as lutas quando o log é reproduzido depois.
+    /// </summary>
+    public void WriteCombatState(bool inAct, bool inGame, bool actChanged, bool gameChanged)
+    {
+        static string B(bool v) => v ? "1" : "0";
+        try { logOutput.WriteLine((LogMessageType)260, DateTime.MinValue, $"{B(inAct)}|{B(inGame)}|{B(actChanged)}|{B(gameChanged)}"); } catch { }
     }
 
     /// <summary>Id do processo do jogo que o motor está lendo, ou 0.</summary>

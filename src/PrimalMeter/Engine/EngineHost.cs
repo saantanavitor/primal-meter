@@ -18,7 +18,12 @@ sealed class EngineHost : IDisposable
 
     readonly string engineFolder = EngineInstaller.DefaultFolder;
     ActEngine? engine;
-    Timer? watch;
+    Timer? watch, combat, gameState;
+    string lastCombatData = "";
+    readonly GameCombatState combatMemory = new();
+    bool inGame, inAct;
+    DateTime? endAt;
+    int checking;
     volatile bool forwarding;
     string lastStatus = "";
 
@@ -31,6 +36,7 @@ sealed class EngineHost : IDisposable
     {
         forwarding = true;
         lastStatus = "";   // a página voltou para "conectando": reenviar o estado atual
+        lastCombatData = "";
         if (engine != null) { Report(engine.GameProcessId > 0 ? "live" : "wait"); return; }
         Task.Run(Boot);
     }
@@ -46,9 +52,10 @@ sealed class EngineHost : IDisposable
             EngineInstaller.Ensure(engineFolder, version, (key, arg) => Report("setup", key, arg));
             Report("setup", "engineStarting");
             AssemblyLoadContext.Default.Resolving += ResolveFromEngine;
-            if (DeucalionPipe.ExitAll() > 0) EngineLog.Write("Deucalion de uma sessão anterior desligado");
             CreateEngine();
             watch = new Timer(_ => Watch(), null, 1000, 2000);
+            combat = new Timer(_ => SendCombatData(), null, 1000, 1000);   // como o ACT, atualiza a cada segundo
+            gameState = new Timer(_ => CheckCombatState(), null, 1000, 250);
         }
         catch (Exception ex)
         {
@@ -101,6 +108,62 @@ sealed class EngineHost : IDisposable
         else Report("wait");
     }
 
+    /// <summary>
+    /// Como o IINACT: quando o jogo sai de combate, a luta do ACT é encerrada 5 segundos depois (se o combate não
+    /// voltar antes). Sem isso, o ACT emendaria todos os pulls numa luta só. Também grava as mudanças na linha 260.
+    /// </summary>
+    void CheckCombatState()
+    {
+        if (engine == null || Interlocked.Exchange(ref checking, 1) == 1) return;
+        try
+        {
+            bool game = combatMemory.Read(engine.GameProcessId) ?? false;
+            bool act = engine.InActCombat;
+            if (game != inGame || act != inAct)
+            {
+                engine.WriteCombatState(act, game, act != inAct, game != inGame);
+                if (game != inGame) endAt = game ? null : DateTime.UtcNow.AddSeconds(5);
+                (inGame, inAct) = (game, act);
+            }
+            if (endAt is DateTime t && DateTime.UtcNow >= t)
+            {
+                endAt = null;
+                engine.EndEncounter();
+            }
+        }
+        catch { }
+        finally { checking = 0; }
+    }
+
+    /// <summary>Totais do ACT para a interface; só envia quando algo mudou.</summary>
+    void SendCombatData()
+    {
+        if (!forwarding || engine == null) return;
+        string? json = engine.BuildCombatData();
+        if (json == null || json == lastCombatData) return;
+        bool ended = json.Contains("\"isActive\":\"false\"") && !lastCombatData.Contains("\"isActive\":\"false\"");
+        lastCombatData = json;
+        MessageReceived?.Invoke(json);
+        if (ended) SaveFinalTotals(json);
+    }
+
+    /// <summary>
+    /// Guarda os totais finais de cada luta em %APPDATA%\PrimalMeter\lutas.jsonl (uma linha por luta, as 200 mais
+    /// recentes), para conferir números depois ou comparar com o ACT/IINACT.
+    /// </summary>
+    static void SaveFinalTotals(string json)
+    {
+        try
+        {
+            string file = Path.Combine(Settings.Folder, "lutas.jsonl");
+            var lines = File.Exists(file) ? File.ReadAllLines(file).ToList() : [];
+            lines.Add(DateTime.Now.ToString("s") + "\t" + json);
+            if (lines.Count > 200) lines.RemoveRange(0, lines.Count - 200);
+            File.WriteAllLines(file, lines);
+        }
+        catch { }
+    }
+
     void OnLine(string line)
     {
         if (!forwarding || string.IsNullOrEmpty(line)) return;
@@ -130,10 +193,13 @@ sealed class EngineHost : IDisposable
     public void Dispose()
     {
         watch?.Dispose();
-        if (engine == null) return;
-        int pid = engine.GameProcessId;
-        engine.Dispose();
-        if (pid > 0) DeucalionPipe.Exit(pid);   // deixa o jogo como estava antes do medidor abrir
+        combat?.Dispose();
+        gameState?.Dispose();
+        combatMemory.Dispose();
+        // Ao perder o último cliente, o próprio Deucalion se descarrega e restaura o código original do jogo (igual
+        // no ACT). Se ele sobrar no jogo (medidor fechado à força), a próxima abertura se reconecta a ele
+        // (ver Patcher.MachinaFFXIV), sem desligá-lo: desligar arrancaria ganchos de outras ferramentas.
+        engine?.Dispose();
     }
 }
 

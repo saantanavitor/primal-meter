@@ -255,9 +255,9 @@ const S={me:"",mode:"idle",source:HOST?"builtin":"iinact",linkDetail:"",link:"id
 // lutas antigas do histórico não têm dpsAct
 const dpsOf=c=>S.dpsMode==="active"&&c.dpsAct?c.dpsAct:c.dps;
 try{S.history=JSON.parse(store.get("rm-hist3","[]"))||[]}catch(e){S.history=[]}
-// motor local (engine.js): calcula tudo na demonstração, na reprodução de log e ao vivo com o motor embutido;
-// com o IINACT, os totais vêm dele e o motor local só calcula o dano por habilidade
-const ownTotals=()=>S.mode==="demo"||S.mode==="replay"||(S.mode==="live"&&S.source==="builtin");
+// motor local (engine.js): calcula tudo na demonstração e na reprodução de log. Ao vivo, os totais vêm do ACT
+// (CombatData do motor embutido ou do IINACT), e o motor local só calcula o dano por habilidade
+const ownTotals=()=>S.mode==="demo"||S.mode==="replay";
 const LE=PrimalEngine.create({onEnd:snap=>{if(ownTotals()){S.cur=snap;saveHistory(snap)}}});
 
 /* ================= Dados do IINACT/ACT (OverlayPlugin) ================= */

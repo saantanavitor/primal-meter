@@ -48,7 +48,7 @@ Os dois atalhos podem ser trocados no menu **⋯ → "Atalho para travar"** e **
 
 **No medidor**
 
-- **Abas DPS, Cura e Tanque**: cada uma ordena a party por um número diferente.
+- **Abas DPS, Cura e Tank**: cada uma ordena a party por um número diferente.
 - **Clique num jogador** para ver os detalhes e o dano (ou a cura) de cada habilidade.
 - **Seletor "Luta"**: abre as lutas anteriores. As últimas 20 ficam salvas.
 - **Menu ⋯**:

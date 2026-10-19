@@ -87,13 +87,48 @@ public partial class MainWindow : Window
         Native.EnablePerPixelAlpha(hwnd);
         Native.SetExStyle(hwnd, Native.WS_EX_TOOLWINDOW, 0);   // fora do Alt+Tab
 
-        bool okLock = Native.RegisterHotKey(hwnd, HotkeyLock, Native.MOD_CONTROL | Native.MOD_SHIFT | Native.MOD_NOREPEAT, 'L');
-        bool okShow = Native.RegisterHotKey(hwnd, HotkeyShow, Native.MOD_CONTROL | Native.MOD_SHIFT | Native.MOD_NOREPEAT, 'H');
-
         tray = new Tray(this);
+        var (okLock, okShow) = RegisterHotkeys();
         if (!okLock || !okShow)
-            tray.Notify(Text.T("hotkeysTaken"));
+            tray.Notify(Text.T("hotkeysTaken", LockHotkey.Text, ShowHotkey.Text));
         SetLocked(settings.Locked);
+    }
+
+    Hotkey LockHotkey => Hotkey.Parse(settings.LockHotkey) ?? Hotkey.Parse(Hotkey.DefaultLock)!.Value;
+    Hotkey ShowHotkey => Hotkey.Parse(settings.ShowHotkey) ?? Hotkey.Parse(Hotkey.DefaultShow)!.Value;
+    bool lockHotkeyOk, showHotkeyOk;
+
+    /// <summary>(Re)registra os dois atalhos globais. Devolve se cada um foi aceito pelo Windows.</summary>
+    (bool, bool) RegisterHotkeys()
+    {
+        Native.UnregisterHotKey(hwnd, HotkeyLock);
+        Native.UnregisterHotKey(hwnd, HotkeyShow);
+        var l = LockHotkey;
+        var s = ShowHotkey;
+        lockHotkeyOk = Native.RegisterHotKey(hwnd, HotkeyLock, l.Modifiers | Native.MOD_NOREPEAT, l.Key);
+        showHotkeyOk = Native.RegisterHotKey(hwnd, HotkeyShow, s.Modifiers | Native.MOD_NOREPEAT, s.Key);
+        tray?.SetHotkeys(l.Text, s.Text);
+        SendHotkeys();
+        return (lockHotkeyOk, showHotkeyOk);
+    }
+
+    void SendHotkeys() => Send(new { host = "hotkeys", @lock = LockHotkey.Text, show = ShowHotkey.Text, lockOk = lockHotkeyOk, showOk = showHotkeyOk });
+
+    /// <summary>Troca um atalho pedido pela página ("lock" ou "show"); se o Windows recusar, volta ao anterior.</summary>
+    void ChangeHotkey(string which, string combo)
+    {
+        if (Hotkey.Parse(combo) is not Hotkey h) { SendHotkeys(); return; }
+        string old = which == "lock" ? settings.LockHotkey : settings.ShowHotkey;
+        if (which == "lock") settings.LockHotkey = h.Text; else settings.ShowHotkey = h.Text;
+        var (okLock, okShow) = RegisterHotkeys();
+        if (!(which == "lock" ? okLock : okShow))
+        {
+            if (which == "lock") settings.LockHotkey = old; else settings.ShowHotkey = old;
+            RegisterHotkeys();
+            Send(new { host = "hotkeyTaken", which, combo = h.Text });
+            return;
+        }
+        settings.Save();
     }
 
     IntPtr WndProc(IntPtr h, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -199,6 +234,7 @@ public partial class MainWindow : Window
                 pageReady = true;
                 Send(new { host = "lang", value = settings.Language });
                 Send(new { host = "locked", value = locked });
+                SendHotkeys();
                 if (m.TryGetProperty("url", out var u) && u.GetString() is string url && url.Length > 0) settings.WsUrl = url;
                 StartSource();
                 break;
@@ -218,6 +254,21 @@ public partial class MainWindow : Window
             case "hide": Hide(); break;
             case "quit": Close(); break;
             case "openLog": _ = OpenLogAsync(); break;
+            case "hotkeyCapture":
+                // enquanto a página espera o novo atalho, os atuais ficam desligados; senão apertar o atalho de
+                // sempre travaria o medidor em vez de chegar à página
+                if (m.TryGetProperty("value", out var cap) && cap.ValueKind == JsonValueKind.True)
+                {
+                    Native.UnregisterHotKey(hwnd, HotkeyLock);
+                    Native.UnregisterHotKey(hwnd, HotkeyShow);
+                }
+                else RegisterHotkeys();
+                break;
+            case "hotkey":
+                if (m.TryGetProperty("which", out var w) && w.GetString() is "lock" or "show" &&
+                    m.TryGetProperty("combo", out var cb) && cb.GetString() is string combo)
+                    ChangeHotkey(w.GetString()!, combo);
+                break;
             case "lang":
                 if (m.TryGetProperty("value", out var l) && l.GetString() is "pt-BR" or "en")
                 {

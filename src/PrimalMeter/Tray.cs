@@ -12,8 +12,8 @@ sealed class Tray : IDisposable
 
     public Tray(MainWindow w)
     {
-        showItem = new ToolStripMenuItem("", null, (_, _) => w.ToggleVisible()) { ShortcutKeyDisplayString = "Ctrl+Shift+H" };
-        lockItem = new ToolStripMenuItem("", null, (_, _) => w.ToggleLocked()) { ShortcutKeyDisplayString = "Ctrl+Shift+L" };
+        showItem = new ToolStripMenuItem("", null, (_, _) => w.ToggleVisible()) ;
+        lockItem = new ToolStripMenuItem("", null, (_, _) => w.ToggleLocked()) ;
         liveItem = new ToolStripMenuItem("", null, (_, _) => w.TrayCommand("live"));
         demoItem = new ToolStripMenuItem("", null, (_, _) => w.TrayCommand("demo"));
         replayItem = new ToolStripMenuItem("", null, (_, _) => w.TrayCommand("replay"));
@@ -52,6 +52,13 @@ sealed class Tray : IDisposable
         demoItem.Text = Text.T("trayDemo");
         replayItem.Text = Text.T("trayReplay");
         quitItem.Text = Text.T("trayQuit");
+    }
+
+    /// <summary>Mostra os atalhos configurados ao lado dos itens.</summary>
+    public void SetHotkeys(string lockCombo, string showCombo)
+    {
+        lockItem.ShortcutKeyDisplayString = lockCombo;
+        showItem.ShortcutKeyDisplayString = showCombo;
     }
 
     public void SetLocked(bool value)

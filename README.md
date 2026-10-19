@@ -37,12 +37,14 @@ Na primeira execução, o medidor baixa o motor de parse do ACT da página ofici
    - **amarelo, "Esperando o jogo…"**: o FFXIV ainda não está aberto;
    - **verde, "Ao vivo"**: está medindo.
 4. Ajuste a posição: **arraste pelo topo** para mover e **puxe o canto inferior direito** para redimensionar. A posição e o tamanho ficam salvos.
-5. **Trave antes de jogar** com **Ctrl+Shift+L**. Travado, o medidor ignora o mouse e os cliques vão para o jogo. Use o mesmo atalho para destravar.
+5. **Trave antes de jogar** com **Ctrl+Alt+L**. Travado, o medidor ignora o mouse e os cliques vão para o jogo. Use o mesmo atalho para destravar.
 
 | Atalho | O que faz |
 | --- | --- |
-| **Ctrl+Shift+L** | Travar / destravar (os cliques passam para o jogo) |
-| **Ctrl+Shift+H** | Mostrar / ocultar o medidor |
+| **Ctrl+Alt+L** | Travar / destravar (os cliques passam para o jogo) |
+| **Ctrl+Alt+H** | Mostrar / ocultar o medidor |
+
+Os dois atalhos podem ser trocados no menu **⋯ → "Atalho para travar"** e **"Atalho para mostrar/ocultar"**: clique e aperte a nova combinação (com Ctrl ou Alt). Se outro programa já usar a combinação, o medidor avisa. Até a versão 0.4.1, os atalhos eram Ctrl+Shift+L e Ctrl+Shift+H, mas o Ctrl+Shift+L conflita com o software da Radeon.
 
 **No medidor**
 
@@ -127,8 +129,9 @@ E o que ele **não** faz:
 | O IINACT parou de capturar depois que fechei o Primal Meter | Desative e ative o IINACT em `/xlplugins`. Para evitar, ligue o IINACT antes de abrir o Primal Meter. |
 | "Preparando…" não termina | O primeiro uso precisa de internet para baixar o motor. Confira a conexão e reabra. |
 | O medidor não aparece por cima do jogo | Coloque o jogo em **Janela sem bordas**. |
-| Não consigo clicar no medidor | Ele está travado. Aperte **Ctrl+Shift+L**. |
-| O medidor sumiu | Aperte **Ctrl+Shift+H** ou clique no ícone na bandeja. |
+| O atalho não funciona, ou abre outro programa (Radeon, Discord, NVIDIA…) | Outro programa usa a mesma combinação. Troque o atalho no menu ⋯ do medidor, ou use o ícone da bandeja. |
+| Não consigo clicar no medidor | Ele está travado. Aperte **Ctrl+Alt+L**. |
+| O medidor sumiu | Aperte **Ctrl+Alt+H** ou clique no ícone na bandeja. |
 | "Precisa do WebView2 Runtime" | Isso só acontece no Windows 10 antigo. Instale o [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) e abra de novo. |
 
 ---

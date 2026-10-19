@@ -39,12 +39,14 @@ To use it in English, open the **⋯** menu and click **"Idioma: Português · s
    - **yellow, "Waiting for the game…"**: FFXIV isn't open yet;
    - **green, "Live"**: it's measuring.
 4. Adjust the position: **drag the top** to move it and **pull the bottom-right corner** to resize it. Position and size are saved.
-5. **Lock it before playing** with **Ctrl+Shift+L**. When locked, the meter ignores the mouse and clicks go to the game. Use the same shortcut to unlock.
+5. **Lock it before playing** with **Ctrl+Alt+L**. When locked, the meter ignores the mouse and clicks go to the game. Use the same shortcut to unlock.
 
 | Shortcut | What it does |
 | --- | --- |
-| **Ctrl+Shift+L** | Lock / unlock (clicks go through to the game) |
-| **Ctrl+Shift+H** | Show / hide the meter |
+| **Ctrl+Alt+L** | Lock / unlock (clicks go through to the game) |
+| **Ctrl+Alt+H** | Show / hide the meter |
+
+Both shortcuts can be changed in the **⋯ menu → "Lock shortcut"** and **"Show/hide shortcut"**: click and press the new combination (with Ctrl or Alt). If another program already uses it, the meter tells you. Up to version 0.4.1 the shortcuts were Ctrl+Shift+L and Ctrl+Shift+H, but Ctrl+Shift+L conflicts with Radeon Software.
 
 **In the meter**
 
@@ -129,8 +131,9 @@ And what it does **not** do:
 | IINACT stopped capturing after I closed Primal Meter | Disable and enable IINACT in `/xlplugins`. To avoid it, turn IINACT on before opening Primal Meter. |
 | "Preparing…" never finishes | The first run needs internet to download the engine. Check your connection and reopen. |
 | The meter doesn't appear over the game | Set the game to **Borderless Windowed**. |
-| I can't click the meter | It's locked. Press **Ctrl+Shift+L**. |
-| The meter disappeared | Press **Ctrl+Shift+H** or click the tray icon. |
+| The shortcut doesn't work, or opens another program (Radeon, Discord, NVIDIA…) | Another program uses the same combination. Change the shortcut in the meter's ⋯ menu, or use the tray icon. |
+| I can't click the meter | It's locked. Press **Ctrl+Alt+L**. |
+| The meter disappeared | Press **Ctrl+Alt+H** or click the tray icon. |
 | "Needs the WebView2 Runtime" | This only happens on old Windows 10 installs. Install the [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) and open it again. |
 
 ---

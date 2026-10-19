@@ -105,7 +105,7 @@ html.locked .rp{display:none}
 .msg{font-size:.8rem;color:var(--warn);padding:6px 12px;border-top:1px solid var(--line)}
 
 /* Menu */
-.menu{position:absolute;right:8px;top:86px;z-index:5;width:min(270px,calc(100% - 16px));background:var(--panel-solid);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.5);padding:6px;display:grid;gap:2px}
+.menu{position:absolute;right:8px;top:86px;z-index:5;max-height:calc(100% - 94px);overflow-y:auto;width:min(270px,calc(100% - 16px));background:var(--panel-solid);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.5);padding:6px;display:grid;gap:2px}
 .menu button.mi{background:none;border:none;text-align:left;padding:6px 8px;border-radius:5px;cursor:pointer;font-size:.88rem}
 .menu button.mi:hover{background:var(--row-hi)}
 .menu hr{border:none;border-top:1px solid var(--line);margin:4px 2px}
@@ -127,11 +127,11 @@ html:not(.host) .host-only{display:none}
   <div class="ov-top" id="top">
     <div class="ov-title" id="encTitle"></div>
     <div class="ov-time num" id="encTime">00:00</div>
-    <div class="ov-sub"><span class="dot" id="dot"></span><span id="modeLbl"></span><span class="lockpill" id="lockPill" data-i18n-title="lockedHint"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg><span class="num">Ctrl+Shift+L</span></span></div>
+    <div class="ov-sub"><span class="dot" id="dot"></span><span id="modeLbl"></span><span class="lockpill" id="lockPill"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg><span class="num" id="lockKey">Ctrl+Alt+L</span></span></div>
     <div class="ov-total"><span class="num" id="total">0</span> <span id="totalLbl"></span></div>
     <div class="bar">
       <select id="histSel" data-i18n-label="fight"></select>
-      <button class="ib host-only" id="bLock" type="button" data-i18n-title="lockTip" data-i18n-label="lock"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg></button>
+      <button class="ib host-only" id="bLock" type="button" data-i18n-label="lock"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg></button>
       <button class="ib" id="bMenu" type="button" title="Menu" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="13" cy="8" r="1.4"/></svg></button>
     </div>
   </div>
@@ -150,7 +150,9 @@ html:not(.host) .host-only{display:none}
     <button class="mi" id="mClear" type="button" data-i18n="clearHistory"></button>
     <button class="mi" id="mLang" type="button"></button>
     <hr class="host-only">
-    <div class="hint host-only" data-i18n="hotkeys"></div>
+    <button class="mi host-only" id="mHkLock" type="button"></button>
+    <button class="mi host-only" id="mHkShow" type="button"></button>
+    <div class="hint host-only" id="mHkHint"></div>
     <button class="mi host-only" id="mHide" type="button" data-i18n="hideTray"></button>
     <button class="mi host-only" id="mQuit" type="button" data-i18n="quit"></button>
   </div>
@@ -195,9 +197,9 @@ const ROLE={PLD:"tank",WAR:"tank",DRK:"tank",GNB:"tank",GLA:"tank",MRD:"tank",WH
 // português é o idioma principal; o inglês é opcional (menu ⋯ → Idioma)
 const I18N={
  "pt-BR":{
-  waiting:"Aguardando combate",combat:"Combate",lockedHint:"Travado: use Ctrl+Shift+L para destravar",fight:"Luta",lock:"Travar",lockTip:"Travar (Ctrl+Shift+L): o mouse passa para o jogo",
+  waiting:"Aguardando combate",combat:"Combate",lockedHint:"Travado: use {0} para destravar",fight:"Luta",lock:"Travar",lockTip:"Travar ({0}): o mouse passa para o jogo",
   demo:"Demonstração",replayLog:"Reproduzir log…",opacity:"Opacidade do fundo",iinactUrl:"Endereço do IINACT",clearHistory:"Limpar histórico",lang:"Idioma: Português · switch to English",
-  hotkeys:"Ctrl+Shift+L trava/destrava · Ctrl+Shift+H mostra/oculta",hideTray:"Ocultar na bandeja",quit:"Sair",tabHeal:"Cura",tabTank:"Tanque",
+  hkLock:"Atalho para travar: {0} · mudar",hkShow:"Atalho para mostrar/ocultar: {0} · mudar",hkPress:"Aperte o novo atalho (Ctrl ou Alt + uma tecla) · Esc cancela",hkNeedMod:"O atalho precisa ter Ctrl ou Alt, para não atrapalhar o jogo.",hkTaken:"{0} já é usado por outro programa. Escolha outra combinação.",hkHint:"Se um atalho não funcionar, outro programa (Radeon, Discord, NVIDIA…) pode estar usando a mesma combinação.",hideTray:"Ocultar na bandeja",quit:"Sair",tabHeal:"Cura",tabTank:"Tanque",
   skipEnd:"Processar o resto do log de uma vez",stopReplay:"Parar e voltar ao vivo",resize:"Redimensionar",
   player:"Jogador",dpsActive:"DPS ativo",critShort:"Crít",partyDps:"DPS da party",partyHps:"HPS da party",deaths:"Mortes",takenPerSec:"dano recebido/s",
   live:"Ao vivo",connecting:"Conectando…",noConn:"Sem conexão",disconnected:"Desconectado",replaying:"Reproduzindo log",preparing:"Preparando…",waitingGame:"Esperando o jogo…",engineError:"Erro no motor",history:"Histórico · ",
@@ -217,9 +219,9 @@ const I18N={
   dpsHintFight:"Igual ao ACT e ao FFLogs, o justo em raide. No boneco com outras pessoas batendo, use o tempo ativo.",
   dummy:"Boneco de Treino",arena:"Arena de Treino",raidwide:"Golpe Sísmico"},
  en:{
-  waiting:"Waiting for combat",combat:"Combat",lockedHint:"Locked: press Ctrl+Shift+L to unlock",fight:"Fight",lock:"Lock",lockTip:"Lock (Ctrl+Shift+L): the mouse goes through to the game",
+  waiting:"Waiting for combat",combat:"Combat",lockedHint:"Locked: press {0} to unlock",fight:"Fight",lock:"Lock",lockTip:"Lock ({0}): the mouse goes through to the game",
   demo:"Demo",replayLog:"Replay log…",opacity:"Background opacity",iinactUrl:"IINACT address",clearHistory:"Clear history",lang:"Language: English · mudar para Português",
-  hotkeys:"Ctrl+Shift+L locks/unlocks · Ctrl+Shift+H shows/hides",hideTray:"Hide to tray",quit:"Quit",tabHeal:"Heal",tabTank:"Tank",
+  hkLock:"Lock shortcut: {0} · change",hkShow:"Show/hide shortcut: {0} · change",hkPress:"Press the new shortcut (Ctrl or Alt + a key) · Esc cancels",hkNeedMod:"The shortcut needs Ctrl or Alt, so it doesn't get in the way of the game.",hkTaken:"{0} is already used by another program. Pick another combination.",hkHint:"If a shortcut doesn't work, another program (Radeon, Discord, NVIDIA…) may be using the same combination.",hideTray:"Hide to tray",quit:"Quit",tabHeal:"Heal",tabTank:"Tank",
   skipEnd:"Process the rest of the log at once",stopReplay:"Stop and go back to live",resize:"Resize",
   player:"Player",dpsActive:"Active DPS",critShort:"Crit",partyDps:"party DPS",partyHps:"party HPS",deaths:"Deaths",takenPerSec:"damage taken/s",
   live:"Live",connecting:"Connecting…",noConn:"No connection",disconnected:"Disconnected",replaying:"Replaying log",preparing:"Preparing…",waitingGame:"Waiting for the game…",engineError:"Engine error",history:"History · ",
@@ -530,7 +532,7 @@ function demoLog(){
 
 /* ================= Menu, travar, arrastar ================= */
 const menu=$("menu");
-function toggleMenu(open){menu.hidden=!open;$("bMenu").setAttribute("aria-expanded",String(open))}
+function toggleMenu(open){menu.hidden=!open;$("bMenu").setAttribute("aria-expanded",String(open));if(!open)endCapture()}
 $("bMenu").onclick=ev=>{ev.stopPropagation();toggleMenu(menu.hidden)};
 document.addEventListener("click",ev=>{if(!menu.hidden&&!menu.contains(ev.target))toggleMenu(false)});
 document.addEventListener("keydown",ev=>{if(ev.key==="Escape")toggleMenu(false)});
@@ -550,9 +552,38 @@ function setDpsMode(m){
 }
 $("mDpsMode").onclick=()=>setDpsMode(S.dpsMode==="active"?"enc":"active");
 setDpsMode(S.dpsMode);
+/* atalhos globais: o app registra; a página mostra e permite trocar */
+const HK={lock:"Ctrl+Alt+L",show:"Ctrl+Alt+H",capturing:null,msg:""};
+function applyHotkeys(){
+  $("lockKey").textContent=HK.lock;
+  $("lockPill").title=t("lockedHint",HK.lock);
+  $("bLock").title=t("lockTip",HK.lock);
+  $("mHkLock").textContent=HK.capturing==="lock"?t("hkPress"):t("hkLock",HK.lock);
+  $("mHkShow").textContent=HK.capturing==="show"?t("hkPress"):t("hkShow",HK.show);
+  $("mHkHint").textContent=HK.msg||t("hkHint");
+}
+function startCapture(which){HK.capturing=which;HK.msg="";post({cmd:"hotkeyCapture",value:true});applyHotkeys()}
+function endCapture(){if(!HK.capturing)return;HK.capturing=null;post({cmd:"hotkeyCapture",value:false});applyHotkeys()}
+$("mHkLock").onclick=ev=>{ev.stopPropagation();startCapture("lock")};
+$("mHkShow").onclick=ev=>{ev.stopPropagation();startCapture("show")};
+// captura antes dos outros atalhos da página (Esc fecha o menu)
+document.addEventListener("keydown",ev=>{
+  if(!HK.capturing) return;
+  ev.preventDefault(); ev.stopImmediatePropagation();
+  if(ev.key==="Escape"){endCapture();return}
+  let key="";
+  if(/^Key[A-Z]$/.test(ev.code)) key=ev.code.slice(3);
+  else if(/^Digit[0-9]$/.test(ev.code)) key=ev.code.slice(5);
+  else if(/^F([1-9]|1[0-2])$/.test(ev.code)) key=ev.code;
+  if(!key) return;   // ainda só modificadores
+  if(!ev.ctrlKey&&!ev.altKey){HK.msg=t("hkNeedMod");applyHotkeys();return}
+  const combo=[ev.ctrlKey&&"Ctrl",ev.altKey&&"Alt",ev.shiftKey&&"Shift",key].filter(Boolean).join("+");
+  const which=HK.capturing; HK.capturing=null;
+  post({cmd:"hotkey",which,combo}); post({cmd:"hotkeyCapture",value:false}); applyHotkeys();
+},true);
 function setLang(l,fromHost){
   LANG=l==="en"?"en":"pt-BR"; store.set("rm-lang",LANG);
-  applyStatic(); updateSourceItem(); setDpsMode(S.dpsMode); fillHist(); linkMsg(); dirty();
+  applyStatic(); applyHotkeys(); updateSourceItem(); setDpsMode(S.dpsMode); fillHist(); linkMsg(); dirty();
   if(!fromHost) post({cmd:"lang",value:LANG});
 }
 $("mLang").onclick=()=>{setLang(LANG==="en"?"pt-BR":"en");toggleMenu(false)};
@@ -581,6 +612,8 @@ if(HOST){
       case "status": setLink(m.value,m.detail); break;
       case "source": S.source=m.value; updateSourceItem(); dirty(); break;
       case "lang": setLang(m.value,true); break;
+      case "hotkeys": HK.lock=m.lock; HK.show=m.show; applyHotkeys(); break;
+      case "hotkeyTaken": HK.msg=t("hkTaken",m.combo); applyHotkeys(); break;
       case "locked": setLocked(!!m.value); break;
       case "replay": startReplay(parseLog(m.text||""),m.name||"log","replay"); break;
       case "menu":
@@ -594,7 +627,7 @@ if(HOST){
 
 /* ================= Início ================= */
 window.__rm={S,LE,handle};
-applyStatic(); fillHist(); showTab(S.tab);
+applyStatic(); applyHotkeys(); fillHist(); showTab(S.tab);
 if(HOST){S.mode="wait";post({cmd:"ready",url:WS_URL})}
 else if(BROWSER_LIVE) connectLive();
 else { setSpeed(4); startReplay(demoLog(),t("demo"),"demo") }

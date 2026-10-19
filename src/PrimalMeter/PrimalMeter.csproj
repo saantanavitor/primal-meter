@@ -10,7 +10,7 @@
     <AssemblyName>PrimalMeter</AssemblyName>
     <RootNamespace>PrimalMeter</RootNamespace>
     <Product>Primal Meter</Product>
-    <Version>0.4.1</Version>
+    <Version>0.4.2</Version>
     <ApplicationIcon>..\..\assets\primal.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <SatelliteResourceLanguages>pt-BR</SatelliteResourceLanguages>

@@ -18,6 +18,9 @@ public sealed class Settings
     public bool Locked { get; set; }
     /// <summary>"builtin": motor do ACT embutido (sem plugins). "iinact": servidor WebSocket do IINACT.</summary>
     public string DataSource { get; set; } = "builtin";
+    /// <summary>Atalhos globais. O padrão era Ctrl+Shift+L/H até a 0.4.1, mas o Ctrl+Shift+L conflita com o software da Radeon.</summary>
+    public string LockHotkey { get; set; } = Hotkey.DefaultLock;
+    public string ShowHotkey { get; set; } = Hotkey.DefaultShow;
     /// <summary>"pt-BR" (padrão) ou "en".</summary>
     public string Language { get; set; } = "pt-BR";
 

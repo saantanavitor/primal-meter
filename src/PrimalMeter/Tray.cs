@@ -7,7 +7,7 @@ namespace PrimalMeter;
 sealed class Tray : IDisposable
 {
     readonly NotifyIcon icon;
-    readonly ToolStripMenuItem showItem, lockItem, liveItem, demoItem, replayItem, quitItem;
+    readonly ToolStripMenuItem showItem, lockItem, liveItem, demoItem, replayItem, autostartItem, quitItem;
     bool locked;
 
     public Tray(MainWindow w)
@@ -17,10 +17,12 @@ sealed class Tray : IDisposable
         liveItem = new ToolStripMenuItem("", null, (_, _) => w.TrayCommand("live"));
         demoItem = new ToolStripMenuItem("", null, (_, _) => w.TrayCommand("demo"));
         replayItem = new ToolStripMenuItem("", null, (_, _) => w.TrayCommand("replay"));
+        autostartItem = new ToolStripMenuItem("", null, (_, _) => w.SetAutoStart(!AutoStart.IsEnabled));
         quitItem = new ToolStripMenuItem("", null, (_, _) => w.Close());
 
         var menu = new ContextMenuStrip();
-        menu.Items.AddRange([showItem, lockItem, new ToolStripSeparator(), liveItem, demoItem, replayItem, new ToolStripSeparator(), quitItem]);
+        menu.Items.AddRange([showItem, lockItem, new ToolStripSeparator(), liveItem, demoItem, replayItem, new ToolStripSeparator(), autostartItem, quitItem]);
+        menu.Opening += (_, _) => autostartItem.Checked = AutoStart.IsEnabled;
 
         icon = new NotifyIcon
         {
@@ -51,6 +53,7 @@ sealed class Tray : IDisposable
         liveItem.Text = Text.T("trayLive");
         demoItem.Text = Text.T("trayDemo");
         replayItem.Text = Text.T("trayReplay");
+        autostartItem.Text = Text.T("trayAutostart");
         quitItem.Text = Text.T("trayQuit");
     }
 

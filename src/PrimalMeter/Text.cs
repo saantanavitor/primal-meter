@@ -27,6 +27,7 @@ static class Text
         ["trayLive"] = ("Voltar ao vivo / reconectar", "Back to live / reconnect"),
         ["trayDemo"] = ("Demonstração", "Demo"),
         ["trayReplay"] = ("Reproduzir log…", "Replay log…"),
+        ["trayAutostart"] = ("Iniciar com o Windows", "Start with Windows"),
         ["trayQuit"] = ("Sair", "Quit"),
 
         ["engineChecking"] = ("Procurando a versão mais recente do motor do ACT…", "Checking for the latest ACT parsing engine…"),

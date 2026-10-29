@@ -59,11 +59,15 @@ Both shortcuts can be changed in the **⋯ menu → "Lock shortcut"** and **"Sho
   - background opacity;
   - data source (built-in engine or IINACT);
   - language (Portuguese or English);
+  - start with Windows;
+  - lock and show/hide shortcuts;
   - clear history and quit.
 
 **Tray icon** (next to the Windows clock): click it to show or hide the meter. Right-click opens the same options as the menu.
 
 **Replay log**: the meter saves one log per day in `Documents\PrimalMeter`, in the same network log format as ACT and IINACT. In the ⋯ menu, choose "Replay log…" and open one of those files. Use ▶/❚❚ to pause, 1×–64× to change the speed and ⏭ to process everything at once.
+
+**Start with Windows**: in the ⋯ menu (or the tray menu), turn on "Start with Windows". The meter then opens with Windows, **hidden in the tray** and already capturing. To see it, click the tray icon or use the show/hide shortcut. If you move `PrimalMeter.exe` to another folder, open it once from the new folder and it updates the path by itself.
 
 **Already using IINACT?** In the ⋯ menu, switch the source to "IINACT". The meter then reads its data, like in earlier versions (`ws://127.0.0.1:10501/ws`).
 

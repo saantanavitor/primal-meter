@@ -57,11 +57,15 @@ Os dois atalhos podem ser trocados no menu **⋯ → "Atalho para travar"** e **
   - opacidade do fundo;
   - fonte de dados (motor embutido ou IINACT);
   - idioma (português ou inglês);
+  - iniciar com o Windows;
+  - atalhos de travar e de mostrar/ocultar;
   - limpar histórico e sair.
 
 **Ícone na bandeja** (perto do relógio do Windows): clique para mostrar ou ocultar o medidor. O botão direito abre as mesmas opções do menu.
 
 **Reproduzir log**: o medidor grava um log de cada dia em `Documentos\PrimalMeter`, no mesmo formato de log de rede do ACT e do IINACT. No menu ⋯, escolha "Reproduzir log…" e abra um desses arquivos. Use ▶/❚❚ para pausar, 1×–64× para mudar a velocidade e ⏭ para processar tudo de uma vez.
+
+**Iniciar com o Windows**: no menu ⋯ (ou no menu da bandeja), ligue "Iniciar com o Windows". O medidor passa a abrir junto com o Windows, **escondido na bandeja** e já capturando. Para ver o medidor, clique no ícone da bandeja ou use o atalho de mostrar/ocultar. Se você mudar o `PrimalMeter.exe` de pasta, abra-o uma vez pela nova pasta, e ele atualiza o caminho sozinho.
 
 **Já usa o IINACT?** No menu ⋯, troque a fonte para "IINACT". O medidor passa a ler os dados dele, como nas versões anteriores (`ws://127.0.0.1:10501/ws`).
 

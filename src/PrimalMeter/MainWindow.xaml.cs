@@ -36,7 +36,7 @@ public partial class MainWindow : Window
     Point gestureStart;
     Rect gestureRect;
 
-    public MainWindow()
+    public MainWindow(bool startHidden = false)
     {
         InitializeComponent();
         Width = settings.Width;
@@ -55,6 +55,18 @@ public partial class MainWindow : Window
 
         SourceInitialized += OnSourceInitialized;
         Loaded += async (_, _) => await InitWebAsync();
+        if (startHidden)
+        {
+            // Iniciado com o Windows: a janela precisa abrir uma vez para a interface e o motor começarem, mas abre
+            // fora da tela e logo é escondida; o medidor fica só na bandeja até ser mostrado
+            var (left, top) = (Left, Top);
+            (Left, Top) = (-32000, -32000);
+            Loaded += (_, _) =>
+            {
+                Hide();
+                (Left, Top) = (left, top);
+            };
+        }
         Closing += (_, _) => SaveWindow();
         Closed += (_, _) => Cleanup();
 
@@ -235,6 +247,7 @@ public partial class MainWindow : Window
                 Send(new { host = "lang", value = settings.Language });
                 Send(new { host = "locked", value = locked });
                 SendHotkeys();
+                Send(new { host = "autostart", value = AutoStart.IsEnabled });
                 if (m.TryGetProperty("url", out var u) && u.GetString() is string url && url.Length > 0) settings.WsUrl = url;
                 StartSource();
                 break;
@@ -254,6 +267,9 @@ public partial class MainWindow : Window
             case "hide": Hide(); break;
             case "quit": Close(); break;
             case "openLog": _ = OpenLogAsync(); break;
+            case "autostart":
+                SetAutoStart(m.TryGetProperty("value", out var asv) && asv.ValueKind == JsonValueKind.True);
+                break;
             case "hotkeyCapture":
                 // enquanto a página espera o novo atalho, os atuais ficam desligados; senão apertar o atalho de
                 // sempre travaria o medidor em vez de chegar à página
@@ -366,6 +382,13 @@ public partial class MainWindow : Window
     {
         SetLocked(!locked);
         if (!IsVisible) ShowMeter();
+    }
+
+    /// <summary>Liga ou desliga o "Iniciar com o Windows" e avisa a página.</summary>
+    public void SetAutoStart(bool enabled)
+    {
+        try { AutoStart.Set(enabled); } catch { }
+        Send(new { host = "autostart", value = AutoStart.IsEnabled });
     }
 
     public void ToggleVisible()

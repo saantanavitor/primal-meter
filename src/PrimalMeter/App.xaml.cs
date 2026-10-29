@@ -29,7 +29,8 @@ public partial class App : Application
             return;
         }
         DispatcherUnhandledException += OnCrash;
-        MainWindow = new MainWindow();
+        AutoStart.RefreshPath();
+        MainWindow = new MainWindow(startHidden: e.Args.Contains(AutoStart.TrayArg));
         MainWindow.Show();
     }
 

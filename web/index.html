@@ -149,6 +149,7 @@ html:not(.host) .host-only{display:none}
     <div class="row"><input type="text" id="mUrl" spellcheck="false"><button class="btn" id="mUrlOk" type="button">OK</button></div>
     <button class="mi" id="mClear" type="button" data-i18n="clearHistory"></button>
     <button class="mi" id="mLang" type="button"></button>
+    <button class="mi host-only" id="mAutostart" type="button"></button>
     <hr class="host-only">
     <button class="mi host-only" id="mHkLock" type="button"></button>
     <button class="mi host-only" id="mHkShow" type="button"></button>
@@ -199,7 +200,7 @@ const I18N={
  "pt-BR":{
   waiting:"Aguardando combate",combat:"Combate",lockedHint:"Travado: use {0} para destravar",fight:"Luta",lock:"Travar",lockTip:"Travar ({0}): o mouse passa para o jogo",
   demo:"Demonstração",replayLog:"Reproduzir log…",opacity:"Opacidade do fundo",iinactUrl:"Endereço do IINACT",clearHistory:"Limpar histórico",lang:"Idioma: Português · switch to English",
-  hkLock:"Atalho para travar: {0} · mudar",hkShow:"Atalho para mostrar/ocultar: {0} · mudar",hkPress:"Aperte o novo atalho (Ctrl ou Alt + uma tecla) · Esc cancela",hkNeedMod:"O atalho precisa ter Ctrl ou Alt, para não atrapalhar o jogo.",hkTaken:"{0} já é usado por outro programa. Escolha outra combinação.",hkHint:"Se um atalho não funcionar, outro programa (Radeon, Discord, NVIDIA…) pode estar usando a mesma combinação.",hideTray:"Ocultar na bandeja",quit:"Sair",tabHeal:"Cura",tabTank:"Tank",
+  autostartOn:"Iniciar com o Windows: ligado · desligar",autostartOff:"Iniciar com o Windows: desligado · ligar",autostartTip:"Abre junto com o Windows, escondido na bandeja e já capturando. Mostre o medidor pelo ícone da bandeja ou pelo atalho.",hkLock:"Atalho para travar: {0} · mudar",hkShow:"Atalho para mostrar/ocultar: {0} · mudar",hkPress:"Aperte o novo atalho (Ctrl ou Alt + uma tecla) · Esc cancela",hkNeedMod:"O atalho precisa ter Ctrl ou Alt, para não atrapalhar o jogo.",hkTaken:"{0} já é usado por outro programa. Escolha outra combinação.",hkHint:"Se um atalho não funcionar, outro programa (Radeon, Discord, NVIDIA…) pode estar usando a mesma combinação.",hideTray:"Ocultar na bandeja",quit:"Sair",tabHeal:"Cura",tabTank:"Tank",
   skipEnd:"Processar o resto do log de uma vez",stopReplay:"Parar e voltar ao vivo",resize:"Redimensionar",
   player:"Jogador",dpsActive:"DPS ativo",critShort:"Crít",partyDps:"DPS da party",partyHps:"HPS da party",deaths:"Mortes",takenPerSec:"dano recebido/s",
   live:"Ao vivo",connecting:"Conectando…",noConn:"Sem conexão",disconnected:"Desconectado",replaying:"Reproduzindo log",preparing:"Preparando…",waitingGame:"Esperando o jogo…",engineError:"Erro no motor",history:"Histórico · ",
@@ -221,7 +222,7 @@ const I18N={
  en:{
   waiting:"Waiting for combat",combat:"Combat",lockedHint:"Locked: press {0} to unlock",fight:"Fight",lock:"Lock",lockTip:"Lock ({0}): the mouse goes through to the game",
   demo:"Demo",replayLog:"Replay log…",opacity:"Background opacity",iinactUrl:"IINACT address",clearHistory:"Clear history",lang:"Language: English · mudar para Português",
-  hkLock:"Lock shortcut: {0} · change",hkShow:"Show/hide shortcut: {0} · change",hkPress:"Press the new shortcut (Ctrl or Alt + a key) · Esc cancels",hkNeedMod:"The shortcut needs Ctrl or Alt, so it doesn't get in the way of the game.",hkTaken:"{0} is already used by another program. Pick another combination.",hkHint:"If a shortcut doesn't work, another program (Radeon, Discord, NVIDIA…) may be using the same combination.",hideTray:"Hide to tray",quit:"Quit",tabHeal:"Heal",tabTank:"Tank",
+  autostartOn:"Start with Windows: on · turn off",autostartOff:"Start with Windows: off · turn on",autostartTip:"Opens with Windows, hidden in the tray and already capturing. Show the meter from the tray icon or with the shortcut.",hkLock:"Lock shortcut: {0} · change",hkShow:"Show/hide shortcut: {0} · change",hkPress:"Press the new shortcut (Ctrl or Alt + a key) · Esc cancels",hkNeedMod:"The shortcut needs Ctrl or Alt, so it doesn't get in the way of the game.",hkTaken:"{0} is already used by another program. Pick another combination.",hkHint:"If a shortcut doesn't work, another program (Radeon, Discord, NVIDIA…) may be using the same combination.",hideTray:"Hide to tray",quit:"Quit",tabHeal:"Heal",tabTank:"Tank",
   skipEnd:"Process the rest of the log at once",stopReplay:"Stop and go back to live",resize:"Resize",
   player:"Player",dpsActive:"Active DPS",critShort:"Crit",partyDps:"party DPS",partyHps:"party HPS",deaths:"Deaths",takenPerSec:"damage taken/s",
   live:"Live",connecting:"Connecting…",noConn:"No connection",disconnected:"Disconnected",replaying:"Replaying log",preparing:"Preparing…",waitingGame:"Waiting for the game…",engineError:"Engine error",history:"History · ",
@@ -562,6 +563,9 @@ function applyHotkeys(){
   $("mHkShow").textContent=HK.capturing==="show"?t("hkPress"):t("hkShow",HK.show);
   $("mHkHint").textContent=HK.msg||t("hkHint");
 }
+let AUTOSTART=false;
+function applyAutostart(){const b=$("mAutostart");b.textContent=AUTOSTART?t("autostartOn"):t("autostartOff");b.title=t("autostartTip")}
+$("mAutostart").onclick=ev=>{ev.stopPropagation();post({cmd:"autostart",value:!AUTOSTART})};
 function startCapture(which){HK.capturing=which;HK.msg="";post({cmd:"hotkeyCapture",value:true});applyHotkeys()}
 function endCapture(){if(!HK.capturing)return;HK.capturing=null;post({cmd:"hotkeyCapture",value:false});applyHotkeys()}
 $("mHkLock").onclick=ev=>{ev.stopPropagation();startCapture("lock")};
@@ -583,7 +587,7 @@ document.addEventListener("keydown",ev=>{
 },true);
 function setLang(l,fromHost){
   LANG=l==="en"?"en":"pt-BR"; store.set("rm-lang",LANG);
-  applyStatic(); applyHotkeys(); updateSourceItem(); setDpsMode(S.dpsMode); fillHist(); linkMsg(); dirty();
+  applyStatic(); applyHotkeys(); applyAutostart(); updateSourceItem(); setDpsMode(S.dpsMode); fillHist(); linkMsg(); dirty();
   if(!fromHost) post({cmd:"lang",value:LANG});
 }
 $("mLang").onclick=()=>{setLang(LANG==="en"?"pt-BR":"en");toggleMenu(false)};
@@ -612,6 +616,7 @@ if(HOST){
       case "status": setLink(m.value,m.detail); break;
       case "source": S.source=m.value; updateSourceItem(); dirty(); break;
       case "lang": setLang(m.value,true); break;
+      case "autostart": AUTOSTART=!!m.value; applyAutostart(); break;
       case "hotkeys": HK.lock=m.lock; HK.show=m.show; applyHotkeys(); break;
       case "hotkeyTaken": HK.msg=t("hkTaken",m.combo); applyHotkeys(); break;
       case "locked": setLocked(!!m.value); break;
@@ -627,7 +632,7 @@ if(HOST){
 
 /* ================= Início ================= */
 window.__rm={S,LE,handle};
-applyStatic(); applyHotkeys(); fillHist(); showTab(S.tab);
+applyStatic(); applyHotkeys(); applyAutostart(); fillHist(); showTab(S.tab);
 if(HOST){S.mode="wait";post({cmd:"ready",url:WS_URL})}
 else if(BROWSER_LIVE) connectLive();
 else { setSpeed(4); startReplay(demoLog(),t("demo"),"demo") }

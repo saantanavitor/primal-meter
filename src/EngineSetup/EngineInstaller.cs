@@ -75,8 +75,17 @@ public static class EngineInstaller
             using var plugin = new TargetAssembly(pluginPath);
             return plugin.ApiVersionMatches() ? plugin.Version : null;
         }
+        catch (IOException)
+        {
+            // em uso por outra instância (por exemplo, a de desenvolvimento ao lado da instalada): não dá para
+            // atualizar agora, então segue com o motor que já está lá
+            return InUse;
+        }
         catch { return null; }
     }
+
+    /// <summary>Versão "infinita": faz o Ensure não tentar atualizar um motor que está em uso.</summary>
+    static readonly Version InUse = new(int.MaxValue, 0);
 
     static (Version, string) LatestRelease(HttpClient http)
     {
